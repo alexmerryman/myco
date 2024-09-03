@@ -1,0 +1,47 @@
+.vouchers-grid {
+  display: grid;
+  gap: 30px;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.voucher-box {
+  border: 1px solid black;
+}
+
+.header-box {
+  display: flex;
+  height: 75px;
+}
+
+.fungarium-logo {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 10px; /* Add some margin between text and image */
+ }
+
+.fungarium-logo img {
+  order: 1;
+  max-width: 100%; /* Ensure image doesn't exceed its container width */
+}
+
+.fungarium-name {
+  text-align: center;
+  font-family: "roca", sans-serif;
+  font-weight: 400;
+  font-weight: bold;
+  font-style: normal;
+  font-size: 20px;
+  order: 1;
+  flex-grow: 4;
+}
+
+.voucher-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  height: 150px;
+}
+
+.voucher-info div {
+  border: 0.5px solid black;
+  font-weight: bold;
+}
