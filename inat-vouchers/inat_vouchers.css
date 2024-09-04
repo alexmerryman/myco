@@ -2,6 +2,7 @@
   display: grid;
   gap: 20px;
   grid-template-columns: repeat(3, 1fr);
+  padding: 5px;
 }
 
 .voucher-box {
