@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Print iNaturalist Vouchers</title>
+</head>
+<body>
+    <div>
+        <form method="POST" action="/dropdown">
+            <select name="taxon">
+                <option value="{{ taxa[0] }}" selected>{{ taxa[0] }}</option>
+                {% for t in taxa[1:] %}
+                <option value="{{ t }}">{{ t }}</option>
+                {% endfor %}
+            </select>
+        </form>
+        <form method="POST">
+            <input name="username">
+            <input type="submit">
+        </form>
+    </div>
+</body>
+</html>
