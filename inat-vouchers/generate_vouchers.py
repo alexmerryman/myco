@@ -116,7 +116,7 @@ def format_html_total():
     voucher_html = """<!DOCTYPE html>
     <html lang="en">
     <head>
-        <link rel="stylesheet" href="../inat_vouchers.css">
+        <link rel="stylesheet" href="../generate_vouchers.css">
         <link rel="stylesheet" href="https://use.typekit.net/obz8tah.css">
     </head>
     <div class="vouchers-grid">
@@ -137,7 +137,7 @@ def main():
 
     obs = get_inat_observations(
         # obs_after_date=datetime.datetime.strptime('2024-08-20', '%Y-%m-%d')
-        obs_after_incl_id=238137363
+        obs_after_incl_id=239923807
     )
     print(len(obs))
 
