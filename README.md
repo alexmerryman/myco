@@ -41,3 +41,7 @@ Other
 - Index Fungorum: https://www.indexfungorum.org/Names/names.asp
 - Denver Botanic Gardens - Sam Mitchel Herbarium of Fungi: https://www.botanicgardens.org/our-collections/sam-mitchel-herbarium-fungi
 - Colorado Mycoflora Project: https://coloradomycoflora.org/
+
+Myco Activities
+- Mushroom Color Atlas: https://www.mushroomcoloratlas.com
+- Dyeing with mushrooms: https://www.bloomanddye.com/journal/2019/2/1/dyeing-with-mushrooms
