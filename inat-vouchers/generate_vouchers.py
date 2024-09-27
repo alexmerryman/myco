@@ -133,11 +133,13 @@ def main():
     # format as PDF
     # download/save to print
 
+    # todo add print series number -- to keep track of the order the vouchers are printed in
+
     # pdfkit_example()
 
     obs = get_inat_observations(
         # obs_after_date=datetime.datetime.strptime('2024-08-20', '%Y-%m-%d')
-        obs_after_incl_id=239923807
+        obs_after_incl_id=243504329
     )
     print(len(obs))
 
