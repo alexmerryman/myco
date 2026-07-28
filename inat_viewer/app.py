@@ -22,7 +22,8 @@ FIELDS_TO_RETURN = [
     'id',
     'uri',
     'observed_on',
-    'observed_on_details',
+    'time_observed_at',
+    'observed_time_zone',
     'place_guess',
     'quality_grade',
     'latitude',
@@ -106,7 +107,7 @@ def get_full_size_photo_url(observation: dict):
     """Get the full-size/original photo URL from an observation."""
     photos = []
 
-    print("observation_photos:", observation.get('observation_photos', []))
+    # print("observation_photos:", observation.get('observation_photos', []))
 
     if 'observation_photos' in observation:
         for obs_photo in observation.get('observation_photos', []):
@@ -116,7 +117,7 @@ def get_full_size_photo_url(observation: dict):
     if not photos and 'photos' in observation:
         photos = observation.get('photos', [])
 
-    print(photos)
+    # print(photos)
 
     if photos and len(photos) > 0:
         photo = photos[0]
@@ -141,26 +142,16 @@ def get_full_size_photo_url(observation: dict):
     return ''
 
 
-def format_observed_date(observed_on, observed_on_details=None):
+def format_observed_date(time_observed_at: str, observed_time_zone: str, observed_on: str) -> str:
     """Format the observed date with timestamp if available."""
-    if not observed_on:
+    if not time_observed_at:
         return 'N/A'
 
     try:
-        if observed_on_details:
-            date_str = observed_on_details.get('date', observed_on)
-            time_str = observed_on_details.get('time', '')
-            time_zone = observed_on_details.get('time_zone', 'UTC')
-
-            if time_str:
-                try:
-                    dt = datetime.fromisoformat(f"{date_str}T{time_str}")
-                    return dt.strftime('%Y-%m-%d %H:%M:%S')
-                except:
-                    pass
-
-        dt = datetime.strptime(observed_on, '%Y-%m-%d')
-        return dt.strftime('%Y-%m-%d')
+        dt_obj = datetime.fromisoformat(time_observed_at)
+        dt_str_simple = dt_obj.strftime('%Y-%m-%d %I:%M:%S %p')
+        dt_str = f"{dt_str_simple} ({observed_time_zone})"
+        return dt_str
     except:
         return observed_on
 
@@ -274,8 +265,13 @@ def search_observations():
 
                 # Format observation date with time
                 observed_on = obs.get('observed_on', 'N/A')
-                observed_on_details = obs.get('observed_on_details', {})
-                formatted_date = format_observed_date(observed_on, observed_on_details)
+                time_observed_at = obs.get('time_observed_at', 'N/A')
+                observed_time_zone = obs.get('observed_time_zone', 'N/A')
+                formatted_date = format_observed_date(
+                    time_observed_at=time_observed_at,
+                    observed_time_zone=observed_time_zone,
+                    observed_on=observed_on,
+                )
 
                 # Get user info
                 user_data = obs.get('user', {})
