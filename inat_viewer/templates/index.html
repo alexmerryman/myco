@@ -318,6 +318,8 @@
             vertical-align: middle;
             border-bottom: 1px solid #dee2e6;
             background: white;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
         }
 
         .table-scroll tbody tr:hover td {
@@ -331,16 +333,32 @@
             background: rgba(102, 126, 234, 0.12) !important;
         }
 
-        /* Column Widths */
-        .col-id { width: 80px; min-width: 80px; }
-        .col-photo { width: 80px; min-width: 80px; }
+        /* Column Widths - Adjusted for better mobile display */
+        .col-id { width: 80px; min-width: 80px; max-width: 100px; }
+        .col-photo { width: 90px; min-width: 90px; max-width: 110px; }
         .col-taxon { width: 140px; min-width: 140px; }
-        .col-date { width: 130px; min-width: 130px; }
-        .col-location { width: 120px; min-width: 120px; }
-        .col-observer { width: 100px; min-width: 100px; }
-        .col-link { width: 60px; min-width: 60px; }
-        .col-select { width: 50px; min-width: 50px; text-align: center; }
-        .col-notes { width: 180px; min-width: 160px; }
+        .col-date { width: 130px; min-width: 110px; }
+        .col-location { width: 120px; min-width: 100px; }
+        .col-observer { width: 100px; min-width: 80px; }
+        .col-link { width: 60px; min-width: 55px; }
+        .col-select { width: 50px; min-width: 45px; text-align: center; }
+        .col-notes { width: 180px; min-width: 140px; }
+
+        /* Date/time cell with better text handling */
+        .col-date {
+            font-size: 0.75rem;
+            word-break: break-word;
+            hyphens: auto;
+        }
+        .col-date .date-time {
+            display: block;
+            line-height: 1.3;
+        }
+        .col-date .date-time .timezone {
+            font-size: 0.6rem;
+            color: #6c757d;
+            display: block;
+        }
 
         /* Checkbox column */
         .checkbox-cell {
@@ -389,10 +407,10 @@
             background: rgba(102, 126, 234, 0.05);
         }
 
-        /* Photo Thumbnail - Mobile Optimized */
+        /* Photo Thumbnail - Larger for mobile */
         .photo-thumbnail {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             object-fit: cover;
             border-radius: 8px;
             border: 2px solid #e9ecef;
@@ -404,8 +422,8 @@
             transform: scale(0.95);
         }
         .no-photo {
-            width: 70px;
-            height: 70px;
+            width: 80px;
+            height: 80px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -430,6 +448,7 @@
         .taxon-name {
             font-weight: 600;
             font-size: 0.85rem;
+            word-break: break-word;
         }
         .taxon-rank {
             font-size: 0.65rem;
@@ -711,76 +730,78 @@
                 font-size: 1rem;
             }
 
+            /* Larger photos on mobile */
             .photo-thumbnail {
-                width: 50px;
-                height: 50px;
+                width: 65px;
+                height: 65px;
                 border-radius: 6px;
             }
             .no-photo {
-                width: 50px;
-                height: 50px;
+                width: 65px;
+                height: 65px;
                 font-size: 0.55rem;
             }
 
-            .col-id { width: 60px; min-width: 60px; }
-            .col-photo { width: 60px; min-width: 60px; }
-            .col-taxon { width: 120px; min-width: 120px; }
-            .col-date { width: 110px; min-width: 110px; }
-            .col-location { width: 100px; min-width: 100px; }
-            .col-observer { width: 80px; min-width: 80px; }
-            .col-link { width: 50px; min-width: 50px; }
-            .col-select { width: 40px; min-width: 40px; }
-            .col-notes { width: 140px; min-width: 120px; }
+            .col-id { width: 55px; min-width: 55px; max-width: 70px; }
+            .col-photo { width: 70px; min-width: 65px; max-width: 80px; }
+            .col-taxon { width: 110px; min-width: 100px; }
+            .col-date { width: 100px; min-width: 85px; font-size: 0.65rem; }
+            .col-location { width: 90px; min-width: 80px; font-size: 0.65rem; }
+            .col-observer { width: 75px; min-width: 65px; font-size: 0.65rem; }
+            .col-link { width: 50px; min-width: 45px; }
+            .col-select { width: 40px; min-width: 35px; }
+            .col-notes { width: 120px; min-width: 100px; }
 
             .table-scroll thead th {
-                font-size: 0.65rem;
-                padding: 0.3rem 0.25rem;
+                font-size: 0.6rem;
+                padding: 0.25rem 0.2rem;
                 top: 0;
             }
             .table-scroll tbody td {
-                padding: 0.3rem 0.25rem;
+                padding: 0.25rem 0.2rem;
+                font-size: 0.65rem;
             }
 
             .selection-controls {
-                padding: 6px 8px;
-                gap: 6px;
+                padding: 4px 6px;
+                gap: 4px;
             }
             .selection-controls .btn {
-                font-size: 0.75rem;
-                padding: 0.2rem 0.5rem;
+                font-size: 0.65rem;
+                padding: 0.15rem 0.4rem;
             }
             .selection-count {
-                font-size: 0.8rem;
+                font-size: 0.7rem;
             }
 
             .taxon-name {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
             }
             .taxon-rank {
-                font-size: 0.6rem;
+                font-size: 0.55rem;
             }
 
             .badge-quality {
-                font-size: 0.6rem;
+                font-size: 0.55rem;
                 padding: 2px 6px;
             }
 
             .pagination-controls .btn {
-                min-width: 50px;
-                font-size: 0.75rem;
-                padding: 0.3rem 0.6rem;
+                min-width: 45px;
+                font-size: 0.7rem;
+                padding: 0.25rem 0.5rem;
             }
             .page-number-badge {
-                font-size: 0.75rem;
-                padding: 3px 10px;
+                font-size: 0.7rem;
+                padding: 3px 8px;
             }
             .pagination-info {
-                font-size: 0.75rem;
+                font-size: 0.7rem;
             }
 
             .filter-badge {
-                font-size: 0.65rem;
-                padding: 2px 8px;
+                font-size: 0.6rem;
+                padding: 2px 6px;
             }
 
             .modal-fullscreen-photo .modal-dialog {
@@ -813,17 +834,18 @@
             }
 
             .checkbox-cell input[type="checkbox"] {
-                width: 16px;
-                height: 16px;
+                width: 14px;
+                height: 14px;
             }
 
             .notes-cell .form-control {
-                font-size: 0.65rem;
-                padding: 0.15rem 0.3rem;
+                font-size: 0.6rem;
+                padding: 0.1rem 0.25rem;
+                min-width: 60px;
             }
 
             .table-scroll-body {
-                max-height: 400px;
+                max-height: 350px;
             }
 
             .id-display-card {
@@ -839,7 +861,7 @@
             }
 
             .mobile-mode-toggle {
-                font-size: 0.8rem;
+                font-size: 0.75rem;
             }
             .mobile-mode-toggle .form-switch {
                 padding-left: 2em;
@@ -850,76 +872,108 @@
             }
 
             .input-with-clear .clear-btn {
-                font-size: 0.85rem;
-                right: 6px;
+                font-size: 0.8rem;
+                right: 4px;
+            }
+
+            .col-date .date-time .timezone {
+                font-size: 0.5rem;
             }
         }
 
         @media (max-width: 480px) {
+            /* Even larger photos on small phones relative to screen */
             .photo-thumbnail {
-                width: 40px;
-                height: 40px;
+                width: 55px;
+                height: 55px;
             }
             .no-photo {
-                width: 40px;
-                height: 40px;
+                width: 55px;
+                height: 55px;
                 font-size: 0.5rem;
             }
 
-            .col-id { width: 50px; min-width: 50px; }
-            .col-photo { width: 50px; min-width: 50px; }
-            .col-taxon { width: 100px; min-width: 100px; }
-            .col-date { width: 90px; min-width: 90px; }
-            .col-location { width: 80px; min-width: 80px; }
-            .col-observer { width: 70px; min-width: 70px; }
-            .col-link { width: 45px; min-width: 45px; }
-            .col-select { width: 35px; min-width: 35px; }
-            .col-notes { width: 110px; min-width: 100px; }
+            .col-id { width: 45px; min-width: 40px; max-width: 55px; }
+            .col-photo { width: 60px; min-width: 55px; max-width: 70px; }
+            .col-taxon { width: 90px; min-width: 80px; }
+            .col-date { width: 85px; min-width: 70px; font-size: 0.55rem; }
+            .col-location { width: 75px; min-width: 65px; font-size: 0.55rem; }
+            .col-observer { width: 65px; min-width: 55px; font-size: 0.55rem; }
+            .col-link { width: 40px; min-width: 35px; }
+            .col-select { width: 35px; min-width: 30px; }
+            .col-notes { width: 100px; min-width: 80px; }
 
             .table-scroll thead th {
-                font-size: 0.6rem;
+                font-size: 0.5rem;
                 padding: 0.15rem 0.1rem;
                 top: 0;
             }
             .table-scroll tbody td {
                 padding: 0.15rem 0.1rem;
+                font-size: 0.55rem;
             }
 
             .selection-controls {
-                padding: 4px 6px;
-                gap: 4px;
+                padding: 3px 4px;
+                gap: 3px;
             }
             .selection-controls .btn {
-                font-size: 0.7rem;
-                padding: 0.15rem 0.4rem;
+                font-size: 0.55rem;
+                padding: 0.1rem 0.3rem;
             }
             .selection-count {
-                font-size: 0.7rem;
+                font-size: 0.6rem;
+            }
+
+            .taxon-name {
+                font-size: 0.6rem;
+            }
+            .taxon-rank {
+                font-size: 0.5rem;
+            }
+
+            .badge-quality {
+                font-size: 0.5rem;
+                padding: 1px 4px;
+            }
+
+            .pagination-controls .btn {
+                min-width: 35px;
+                font-size: 0.6rem;
+                padding: 0.2rem 0.4rem;
+            }
+            .page-number-badge {
+                font-size: 0.6rem;
+                padding: 2px 6px;
+            }
+            .pagination-info {
+                font-size: 0.6rem;
             }
 
             .filter-card .form-control,
             .filter-card .form-select {
-                font-size: 0.8rem;
-                padding: 0.35rem 0.5rem;
-            }
-            .id-display-card {
-                padding: 6px;
-            }
-            .id-display-card .form-label {
-                font-size: 0.65rem;
-            }
-            .id-display-card .form-control,
-            .id-display-card .form-select {
                 font-size: 0.7rem;
                 padding: 0.25rem 0.4rem;
             }
+            .id-display-card {
+                padding: 4px;
+            }
+            .id-display-card .form-label {
+                font-size: 0.6rem;
+            }
+            .id-display-card .form-control,
+            .id-display-card .form-select {
+                font-size: 0.65rem;
+                padding: 0.2rem 0.3rem;
+            }
             .checkbox-cell input[type="checkbox"] {
-                width: 14px;
-                height: 14px;
+                width: 12px;
+                height: 12px;
             }
             .notes-cell .form-control {
-                font-size: 0.6rem;
-                min-width: 60px;
+                font-size: 0.5rem;
+                min-width: 50px;
+                padding: 0.1rem 0.2rem;
             }
 
             .photo-modal-img {
@@ -931,11 +985,11 @@
             }
 
             .table-scroll-body {
-                max-height: 300px;
+                max-height: 250px;
             }
 
             .mobile-mode-toggle {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
             }
             .mobile-mode-toggle .form-switch {
                 padding-left: 1.8em;
@@ -946,8 +1000,12 @@
             }
 
             .input-with-clear .clear-btn {
-                font-size: 0.75rem;
-                right: 4px;
+                font-size: 0.65rem;
+                right: 3px;
+            }
+
+            .col-date .date-time .timezone {
+                font-size: 0.45rem;
             }
         }
 
@@ -983,8 +1041,8 @@
     <div class="container">
         <!-- Header -->
         <div class="header text-center">
-            <h1>🌿 iNaturalist Viewer</h1>
-            <p class="lead">Explore wildlife observations with powerful filtering</p>
+            <h1>iNaturalist Viewer</h1>
+            <p class="lead">View observations for field specimen vouchering</p>
         </div>
 
         <!-- Filter Section - Collapsible -->
@@ -1008,7 +1066,7 @@
                         <div class="col-12 col-sm-6 col-md-3">
                             <label for="taxon" class="form-label">Taxon</label>
                             <div class="input-with-clear">
-                                <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera">
+                                <input type="text" class="form-control" id="taxon" placeholder="e.g., Fungi, Cortinariaceae">
                                 <button type="button" class="clear-btn" onclick="clearField('taxon')" title="Clear">
                                     <i class="bi bi-x-circle-fill"></i>
                                 </button>
@@ -1069,10 +1127,25 @@
         <!-- ID Display Options - Separate Card -->
         <div class="id-display-card">
             <h5 onclick="toggleIdDisplay()">
-                <span>ID Display Options</span>
+                <span>iNaturalist ID Display Options</span>
                 <i class="bi bi-chevron-up" id="idDisplayToggleIcon"></i>
             </h5>
             <div class="id-display-content" id="idDisplayContent">
+                <!-- Explanatory/help text -->
+                <div class="id-display-help mt-2 mb-3">
+                    <p class="text-muted small mb-1">
+                        <i class="bi bi-info-circle"></i>
+                        View iNaturalist IDs with various delimiter options to more easily read the ID value.
+                    </p>
+                    <p class="text-muted small mb-0">
+                        <strong>Example:</strong>
+                        <span class="badge bg-light text-dark border me-1">Display Mode: <i>Delimiters</i></span>
+                        <span class="badge bg-light text-dark border me-1">Delimiter: <i>- (hyphen)</i></span>
+                        <span class="badge bg-light text-dark border">Characters per Delimiter: <i>3</i></span>
+                        <span class="ms-2">→ <code class="bg-light p-1 rounded">123-456-789</code></span>
+                    </p>
+                </div>
+                <!-- ID Display Options/Fields -->
                 <div class="row g-2 mt-2">
                     <div class="col-12 col-sm-4">
                         <label for="idDisplay" class="form-label">Display Mode</label>
@@ -1091,12 +1164,24 @@
                         </div>
                     </div>
                     <div class="col-6 col-sm-4">
-                        <label for="idPattern" class="form-label">Pattern</label>
+                        <label for="idPattern" class="form-label">Characters per Delimiter</label>
                         <select class="form-select" id="idPattern">
-                            <option value="every3">Every 3</option>
-                            <option value="every4">Every 4</option>
-                            <option value="every2">Every 2</option>
+                            <option value="every1">1</option>
+                            <option value="every2">2</option>
+                            <option value="every3" selected>3</option>
+                            <option value="every4">4</option>
+                            <option value="every5">5</option>
                         </select>
+                    </div>
+                </div>
+                <!-- Live preview of ID formatting -->
+                <div class="row mt-3" id="idPreviewRow">
+                    <div class="col-12">
+                        <div class="alert alert-secondary py-2 px-3 mb-0" style="font-size: 0.85rem;">
+                            <strong>Preview:</strong>
+                            <span id="idPreview">123-456-789</span>
+                            <span class="text-muted ms-2">(example ID)</span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1105,7 +1190,7 @@
         <!-- Results Section -->
         <div class="result-card">
             <div id="resultsSummary" class="mb-2">
-                <p class="text-muted mb-0" style="font-size: 0.9rem;">Enter filters above and click "Search" to view data.</p>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">Enter filters above and click "Search" to view data.</p>
             </div>
 
             <!-- Loading Spinner -->
@@ -1192,14 +1277,14 @@
                 <!-- Pagination Controls - Outside the scrollable area -->
                 <div class="pagination-container" id="paginationContainer" style="display: none;">
                     <div class="pagination-info" id="paginationInfo">
-                        Showing <span id="pageStart">0</span> - <span id="pageEnd">0</span> of <span id="totalResults">0</span>
+                        Showing <span id="pageStart">0</span> - <span id="pageEnd">0</span> of <span id="totalResults">0</span> observations
                     </div>
                     <div class="pagination-controls">
                         <button class="btn btn-outline-primary btn-page" id="prevPage" onclick="goToPage('prev')">
                             ← Prev
                         </button>
                         <span class="page-number-badge">
-                            <span id="currentPageDisplay">1</span> / <span id="totalPagesDisplay">1</span>
+                            <span id="currentPageDisplay">1</span> / <span id="totalPagesDisplay">1</span> pages
                         </span>
                         <button class="btn btn-outline-primary btn-page" id="nextPage" onclick="goToPage('next')">
                             Next →
@@ -1263,7 +1348,7 @@
         let isPaginating = false;
         let idDisplayMode = 'delimited';
         let idDelimiter = '-';
-        let idPattern = 'every3';
+        let idPattern = 'every3';  // Default to 'every3'
         let photoModal = null;
         let selectedObservations = new Set();
         let observationNotes = {};
@@ -1356,6 +1441,21 @@
             }
         }
 
+        // Update the ID preview based on current settings
+        function updateIdPreview() {
+            const displayMode = document.getElementById('idDisplay').value;
+            const delimiter = document.getElementById('idDelimiter').value || '-';
+            const pattern = document.getElementById('idPattern').value;
+            const previewSpan = document.getElementById('idPreview');
+
+            if (displayMode === 'plain') {
+                previewSpan.textContent = '123456789';
+            } else {
+                // Use the formatId function with a sample ID
+                previewSpan.textContent = formatId('123456789', displayMode, delimiter, pattern);
+            }
+        }
+
         // Toggle filters visibility
         function toggleFilters() {
             const content = document.getElementById('filterContent');
@@ -1413,7 +1513,17 @@
             const idStr = String(id);
             let parts = [];
 
-            if (pattern === 'every3') {
+            if (pattern === 'every1') {
+                for (let i = idStr.length; i > 0; i -= 1) {
+                    parts.push(idStr.substring(Math.max(0, i - 1), i));
+                }
+                parts.reverse();
+            } else if (pattern === 'every2') {
+                for (let i = idStr.length; i > 0; i -= 2) {
+                    parts.push(idStr.substring(Math.max(0, i - 2), i));
+                }
+                parts.reverse();
+            } else if (pattern === 'every3') {
                 for (let i = idStr.length; i > 0; i -= 3) {
                     parts.push(idStr.substring(Math.max(0, i - 3), i));
                 }
@@ -1423,9 +1533,9 @@
                     parts.push(idStr.substring(Math.max(0, i - 4), i));
                 }
                 parts.reverse();
-            } else if (pattern === 'every2') {
-                for (let i = idStr.length; i > 0; i -= 2) {
-                    parts.push(idStr.substring(Math.max(0, i - 2), i));
+            } else if (pattern === 'every5') {
+                for (let i = idStr.length; i > 0; i -= 5) {
+                    parts.push(idStr.substring(Math.max(0, i - 5), i));
                 }
                 parts.reverse();
             }
@@ -1742,6 +1852,13 @@
                 }
             });
 
+            document.getElementById('idDisplay').addEventListener('change', updateIdPreview);
+            document.getElementById('idDelimiter').addEventListener('input', updateIdPreview);
+            document.getElementById('idPattern').addEventListener('change', updateIdPreview);
+
+            // Initial preview update
+            updateIdPreview();
+
             searchForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 currentPage = 1;
@@ -1875,6 +1992,7 @@
             const totalResults = data.total_results;
             const filters = data.filters_applied;
             const pagination = data.pagination;
+            const limitInfo = pagination.limited_to;
 
             currentPage = pagination.current_page;
             totalPages = pagination.total_pages;
@@ -1887,6 +2005,7 @@
                     <div>
                         <strong>${observations.length}</strong> shown
                         ${totalResults > observations.length ? `(of ${totalResults})` : ''}
+                        ${limitInfo ? `<span class="badge bg-warning ms-1" style="font-size: 0.7rem;">Limited to ${limitInfo} most recent</span>` : ''}
                         <span class="badge bg-info ms-1" style="font-size: 0.7rem;">Sort: ${filters.sort_by}</span>
                     </div>
                     <div class="filters-applied">
@@ -1959,7 +2078,9 @@
                             <span class="taxon-rank">${obs.taxon_rank}</span>
                         </div>
                     </td>
-                    <td class="col-date" style="font-size: 0.75rem;">${obs.observed_on_formatted}</td>
+                    <td class="col-date">
+                        <span class="date-time">${obs.observed_on_formatted}</span>
+                    </td>
                     <td class="col-location" style="font-size: 0.75rem;">${obs.place_guess}</td>
                     <td class="col-observer" style="font-size: 0.75rem;">${obs.user_login}</td>
                     <td class="col-link"><a href="${obs.url}" target="_blank" class="observation-link" style="font-size: 0.75rem;">View <i class="bi bi-box-arrow-up-right"></i></a></td>
