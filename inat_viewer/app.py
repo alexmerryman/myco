@@ -1,10 +1,8 @@
-# app.py (complete corrected version)
 from flask import Flask, render_template, request, jsonify
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 import math
-import re
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-here'
@@ -16,6 +14,7 @@ logger = logging.getLogger(__name__)
 # iNaturalist API v2 base URL
 INATURALIST_API_V2 = "https://api.inaturalist.org/v2/observations"
 PER_PAGE = 50  # Observations per page
+MAX_OBSERVATIONS = 1000  # Maximum observations to show on initial load
 
 # v2 uses 'fields' parameter with dot notation for nested fields
 # Format: field1,field2,nested.field1,nested.field2
@@ -178,6 +177,21 @@ def search_observations():
             'fields': ','.join(FIELDS_TO_RETURN)
         }
 
+        # If no filters are applied, limit to MAX_OBSERVATIONS
+        has_filters = any([username, taxon, project_id, date_start, date_end])
+
+        # If no filters, limit the total results to MAX_OBSERVATIONS
+        # by setting a date range for the most recent observations
+        if not has_filters:
+            # Get observations from the last 90 days to limit results
+            # This is a soft limit - the API will return up to MAX_OBSERVATIONS
+            end_date = datetime.now().strftime('%Y-%m-%d')
+            start_date = (datetime.now() - timedelta(days=90)).strftime('%Y-%m-%d')
+            params['d1'] = start_date
+            params['d2'] = end_date
+            params['order_by'] = 'observed_on'
+            params['order'] = 'desc'
+
         # Add user filter (v2 can use either user_id or user_login)
         if username:
             params['user_login'] = username
@@ -197,19 +211,20 @@ def search_observations():
                 params['project_id'] = project_id
 
         # Filter by Date
-        if date_start:
-            try:
-                start_date = datetime.strptime(date_start, '%Y-%m-%d')
-                params['d1'] = start_date.strftime('%Y-%m-%d')
-            except ValueError:
-                pass
+        if has_filters:
+            if date_start:
+                try:
+                    start_date = datetime.strptime(date_start, '%Y-%m-%d')
+                    params['d1'] = start_date.strftime('%Y-%m-%d')
+                except ValueError:
+                    pass
 
-        if date_end:
-            try:
-                end_date = datetime.strptime(date_end, '%Y-%m-%d')
-                params['d2'] = end_date.strftime('%Y-%m-%d')
-            except ValueError:
-                pass
+            if date_end:
+                try:
+                    end_date = datetime.strptime(date_end, '%Y-%m-%d')
+                    params['d2'] = end_date.strftime('%Y-%m-%d')
+                except ValueError:
+                    pass
 
         # Add sorting
         sort_mapping = {
@@ -237,6 +252,10 @@ def search_observations():
         # v2 API returns results in the 'results' field
         observations = data.get('results', [])
         total_results = data.get('total_results', 0)
+
+        # If no filters, cap the total results to MAX_OBSERVATIONS
+        if not has_filters and total_results > MAX_OBSERVATIONS:
+            total_results = MAX_OBSERVATIONS
 
         # Calculate pagination info
         total_pages = math.ceil(total_results / PER_PAGE) if total_results > 0 else 0
@@ -299,6 +318,12 @@ def search_observations():
             except Exception as e:
                 app.logger.warning(f"Error formatting observation {obs.get('id', 'unknown')}: {e}")
                 continue
+
+        # If no filters and we have more results than MAX_OBSERVATIONS, truncate
+        if not has_filters and len(formatted_observations) > MAX_OBSERVATIONS:
+            formatted_observations = formatted_observations[:MAX_OBSERVATIONS]
+            total_results = MAX_OBSERVATIONS
+            total_pages = math.ceil(total_results / PER_PAGE) if total_results > 0 else 0
 
         return jsonify({
             'success': True,

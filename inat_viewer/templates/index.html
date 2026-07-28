@@ -983,8 +983,8 @@
     <div class="container">
         <!-- Header -->
         <div class="header text-center">
-            <h1>🌿 iNaturalist Viewer</h1>
-            <p class="lead">Explore wildlife observations with powerful filtering</p>
+            <h1>iNaturalist Viewer</h1>
+            <p class="lead">View observations for field specimen vouchering</p>
         </div>
 
         <!-- Filter Section - Collapsible -->
@@ -1008,7 +1008,7 @@
                         <div class="col-12 col-sm-6 col-md-3">
                             <label for="taxon" class="form-label">Taxon</label>
                             <div class="input-with-clear">
-                                <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera">
+                                <input type="text" class="form-control" id="taxon" placeholder="e.g., Fungi, Cortinariaceae">
                                 <button type="button" class="clear-btn" onclick="clearField('taxon')" title="Clear">
                                     <i class="bi bi-x-circle-fill"></i>
                                 </button>
@@ -1105,7 +1105,7 @@
         <!-- Results Section -->
         <div class="result-card">
             <div id="resultsSummary" class="mb-2">
-                <p class="text-muted mb-0" style="font-size: 0.9rem;">Enter filters above and click "Search" to view data.</p>
+                    <p class="text-muted mb-0" style="font-size: 0.9rem;">Enter filters above and click "Search" to view data.</p>
             </div>
 
             <!-- Loading Spinner -->
@@ -1192,14 +1192,14 @@
                 <!-- Pagination Controls - Outside the scrollable area -->
                 <div class="pagination-container" id="paginationContainer" style="display: none;">
                     <div class="pagination-info" id="paginationInfo">
-                        Showing <span id="pageStart">0</span> - <span id="pageEnd">0</span> of <span id="totalResults">0</span>
+                        Showing <span id="pageStart">0</span> - <span id="pageEnd">0</span> of <span id="totalResults">0</span> observations
                     </div>
                     <div class="pagination-controls">
                         <button class="btn btn-outline-primary btn-page" id="prevPage" onclick="goToPage('prev')">
                             ← Prev
                         </button>
                         <span class="page-number-badge">
-                            <span id="currentPageDisplay">1</span> / <span id="totalPagesDisplay">1</span>
+                            <span id="currentPageDisplay">1</span> / <span id="totalPagesDisplay">1</span> pages
                         </span>
                         <button class="btn btn-outline-primary btn-page" id="nextPage" onclick="goToPage('next')">
                             Next →
@@ -1875,6 +1875,7 @@
             const totalResults = data.total_results;
             const filters = data.filters_applied;
             const pagination = data.pagination;
+            const limitInfo = pagination.limited_to;
 
             currentPage = pagination.current_page;
             totalPages = pagination.total_pages;
@@ -1887,6 +1888,7 @@
                     <div>
                         <strong>${observations.length}</strong> shown
                         ${totalResults > observations.length ? `(of ${totalResults})` : ''}
+                        ${limitInfo ? `<span class="badge bg-warning ms-1" style="font-size: 0.7rem;">Limited to ${limitInfo} most recent</span>` : ''}
                         <span class="badge bg-info ms-1" style="font-size: 0.7rem;">Sort: ${filters.sort_by}</span>
                     </div>
                     <div class="filters-applied">
