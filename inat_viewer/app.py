@@ -11,6 +11,7 @@ app.config['SECRET_KEY'] = 'your-secret-key-here'
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 
 # iNaturalist API v2 base URL
 INATURALIST_API_V2 = "https://api.inaturalist.org/v2/observations"
@@ -107,8 +108,6 @@ def get_full_size_photo_url(observation: dict):
     """Get the full-size/original photo URL from an observation."""
     photos = []
 
-    # print("observation_photos:", observation.get('observation_photos', []))
-
     if 'observation_photos' in observation:
         for obs_photo in observation.get('observation_photos', []):
             if 'photo' in obs_photo:
@@ -117,26 +116,11 @@ def get_full_size_photo_url(observation: dict):
     if not photos and 'photos' in observation:
         photos = observation.get('photos', [])
 
-    # print(photos)
-
     if photos and len(photos) > 0:
         photo = photos[0]
-
-        for size in ['original', 'large', 'medium', 'small', 'square']:
-            if size in photo:
-                url = photo[size]
-                if '?size=' in url:
-                    url = url.split('?size=')[0]
-                elif '&size=' in url:
-                    url = url.split('&size=')[0]
-                return url
-
         url = photo.get('url', '')
         if url:
-            if '?size=' in url:
-                url = url.split('?size=')[0]
-            elif '&size=' in url:
-                url = url.split('&size=')[0]
+            url = url.replace("square.jpg", "large.jpg")
             return url
 
     return ''
