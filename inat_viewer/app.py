@@ -169,8 +169,9 @@ def search_observations():
         # Get filter parameters from request
         username = request.args.get('username', '').strip()
         taxon = request.args.get('taxon', '').strip()
-        date_start = request.args.get('date_start', '').strip()
-        date_end = request.args.get('date_end', '').strip()
+        project_id = request.args.get('project_id', '').strip()  # Filter observations by project ID
+        date_start = request.args.get('date_start', '').strip()  # Filter observations by start date # TODO inclusive?
+        date_end = request.args.get('date_end', '').strip()      # Filter observations by end date  # TODO inclusive?
         page = int(request.args.get('page', 1))
         sort_by = request.args.get('sort_by', 'observed_on')
         sort_order = request.args.get('sort_order', 'desc')
@@ -201,7 +202,17 @@ def search_observations():
         if taxon:
             params['taxon_name'] = taxon
 
-        # Handle date filtering
+        # Filter by Project ID
+        if project_id:
+            try:
+                # Try to convert to int to validate
+                project_id_int = int(project_id)
+                params['project_id'] = project_id_int
+            except ValueError:
+                # If not a valid integer, pass as string
+                params['project_id'] = project_id
+
+        # Filter by Date
         if date_start:
             try:
                 start_date = datetime.strptime(date_start, '%Y-%m-%d')
@@ -329,6 +340,7 @@ def search_observations():
             'filters_applied': {
                 'username': username if username else 'None',
                 'taxon': taxon if taxon else 'None',
+                'project_id': project_id if project_id else 'None',
                 'date_start': date_start if date_start else 'None',
                 'date_end': date_end if date_end else 'None',
                 'sort_by': sort_by,

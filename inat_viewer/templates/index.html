@@ -74,7 +74,7 @@
         .filter-content {
             overflow: hidden;
             transition: max-height 0.3s ease;
-            max-height: 1000px;
+            max-height: 1200px;
         }
         .filter-content.hidden {
             max-height: 0;
@@ -386,6 +386,8 @@
             align-items: center;
             gap: 10px;
             padding: 10px 0;
+            background: white;
+            border-radius: 0 0 8px 8px;
         }
         .pagination-info {
             color: #6c757d;
@@ -448,6 +450,7 @@
             display: none;
             text-align: center;
             padding: 2rem 0;
+            background: white;
         }
         .loading-spinner .spinner-border {
             width: 2.5rem;
@@ -851,15 +854,11 @@
                             <label for="taxon" class="form-label">Taxon</label>
                             <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera">
                         </div>
-                        <div class="col-6 col-sm-3 col-md-2">
-                            <label for="date_start" class="form-label">Date From</label>
-                            <input type="date" class="form-control" id="date_start">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <label for="project_id" class="form-label">Project ID</label>
+                            <input type="text" class="form-control" id="project_id" placeholder="e.g., 12345">
                         </div>
-                        <div class="col-6 col-sm-3 col-md-2">
-                            <label for="date_end" class="form-label">Date To</label>
-                            <input type="date" class="form-control" id="date_end">
-                        </div>
-                        <div class="col-12 col-sm-6 col-md-2">
+                        <div class="col-6 col-sm-3 col-md-3">
                             <label for="sortBy" class="form-label">Sort By</label>
                             <select class="form-select" id="sortBy">
                                 <option value="observed_on">Date</option>
@@ -868,6 +867,16 @@
                                 <option value="user">Observer</option>
                                 <option value="place_guess">Location</option>
                             </select>
+                        </div>
+                    </div>
+                    <div class="row g-2">
+                        <div class="col-6 col-sm-3 col-md-2">
+                            <label for="date_start" class="form-label">Date From</label>
+                            <input type="date" class="form-control" id="date_start">
+                        </div>
+                        <div class="col-6 col-sm-3 col-md-2">
+                            <label for="date_end" class="form-label">Date To</label>
+                            <input type="date" class="form-control" id="date_end">
                         </div>
                     </div>
 
@@ -1372,7 +1381,7 @@
                 `# Export Date: ${timestamp}`,
                 `# Export Date (Local): ${localTimestamp}`,
                 `# Total Selected: ${rows.length}`,
-                `# Filters Applied: User=${currentFilters.username || 'None'}, Taxon=${currentFilters.taxon || 'None'}`,
+                `# Filters Applied: User=${currentFilters.username || 'None'}, Taxon=${currentFilters.taxon || 'None'}, Project=${currentFilters.project_id || 'None'}`,
                 '#'
             ];
             csvContent = metadata.join('\n') + '\n' + csvContent;
@@ -1440,6 +1449,7 @@
             resetBtn.addEventListener('click', function() {
                 document.getElementById('username').value = '';
                 document.getElementById('taxon').value = '';
+                document.getElementById('project_id').value = '';
                 document.getElementById('date_start').value = '';
                 document.getElementById('date_end').value = '';
                 document.getElementById('sortBy').value = 'observed_on';
@@ -1483,6 +1493,7 @@
 
             const username = document.getElementById('username').value.trim();
             const taxon = document.getElementById('taxon').value.trim();
+            const project_id = document.getElementById('project_id').value.trim();
             const dateStart = document.getElementById('date_start').value.trim();
             const dateEnd = document.getElementById('date_end').value.trim();
             const sortBy = document.getElementById('sortBy').value;
@@ -1491,12 +1502,13 @@
             idDelimiter = document.getElementById('idDelimiter').value || '-';
             idPattern = document.getElementById('idPattern').value;
 
-            currentFilters = { username, taxon, dateStart, dateEnd, sortBy };
+            currentFilters = { username, taxon, project_id, dateStart, dateEnd, sortBy };
             currentSort = sortBy;
 
             const params = new URLSearchParams();
             if (username) params.append('username', username);
             if (taxon) params.append('taxon', taxon);
+            if (project_id) params.append('project_id', project_id);
             if (dateStart) params.append('date_start', dateStart);
             if (dateEnd) params.append('date_end', dateEnd);
             params.append('page', currentPage);
@@ -1576,6 +1588,7 @@
                     <div class="filters-applied">
                         <span class="filter-badge"><strong>User:</strong> ${filters.username}</span>
                         <span class="filter-badge"><strong>Taxon:</strong> ${filters.taxon}</span>
+                        <span class="filter-badge"><strong>Project:</strong> ${filters.project_id}</span>
                         <span class="filter-badge"><strong>Date:</strong> ${filters.date_start} to ${filters.date_end}</span>
                     </div>
                 </div>
