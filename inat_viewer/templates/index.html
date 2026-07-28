@@ -90,7 +90,7 @@
         .table {
             font-size: 0.85rem;
             margin-bottom: 0;
-            min-width: 700px;
+            min-width: 750px;
         }
         .table th {
             font-size: 0.75rem;
@@ -104,6 +104,49 @@
         .table td {
             padding: 0.5rem 0.4rem;
             vertical-align: middle;
+        }
+
+        /* Checkbox column */
+        .checkbox-cell {
+            min-width: 40px;
+            text-align: center;
+        }
+        .checkbox-cell input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+        .checkbox-cell input[type="checkbox"]:hover {
+            transform: scale(1.1);
+        }
+
+        /* Selected row highlight */
+        .table tr.selected {
+            background-color: rgba(102, 126, 234, 0.1) !important;
+        }
+        .table tr.selected td {
+            border-left: 3px solid #667eea;
+        }
+
+        /* Selection controls */
+        .selection-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 10px 0;
+            border-top: 1px solid #e9ecef;
+            margin-top: 10px;
+        }
+        .selection-controls .btn {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.8rem;
+        }
+        .selection-count {
+            font-size: 0.9rem;
+            color: #495057;
+            font-weight: 500;
         }
 
         /* Photo Thumbnail - Mobile Optimized */
@@ -421,7 +464,7 @@
 
             .table {
                 font-size: 0.75rem;
-                min-width: 600px;
+                min-width: 650px;
             }
             .table th {
                 font-size: 0.65rem;
@@ -490,6 +533,11 @@
                 white-space: normal;
                 max-width: 90%;
             }
+
+            .checkbox-cell input[type="checkbox"] {
+                width: 16px;
+                height: 16px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -506,7 +554,7 @@
                 min-width: 50px;
             }
             .table {
-                min-width: 500px;
+                min-width: 550px;
                 font-size: 0.7rem;
             }
             .table th, .table td {
@@ -522,6 +570,10 @@
             }
             .id-display-options .form-label {
                 font-size: 0.7rem;
+            }
+            .checkbox-cell input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
             }
         }
 
@@ -688,6 +740,7 @@
                             </th>
                             <th style="min-width: 80px;">Quality</th>
                             <th style="min-width: 60px;">Link</th>
+                            <th style="min-width: 50px;" class="text-center">Select</th>
                         </tr>
                     </thead>
                     <tbody id="observationsBody">
@@ -695,6 +748,20 @@
                 </table>
                 <div id="noResults" style="display: none;" class="text-center text-muted py-3">
                     <p style="font-size: 0.9rem;">No observations found matching your filters.</p>
+                </div>
+
+                <!-- Selection Controls -->
+                <div class="selection-controls" id="selectionControls" style="display: none;">
+                    <span class="selection-count" id="selectionCount">0 observations selected</span>
+                    <button class="btn btn-outline-success btn-sm" onclick="selectAll()">
+                        <i class="bi bi-check-all"></i> Select All
+                    </button>
+                    <button class="btn btn-outline-secondary btn-sm" onclick="deselectAll()">
+                        <i class="bi bi-x-circle"></i> Deselect All
+                    </button>
+                    <button class="btn btn-primary btn-sm" onclick="exportSelectedCSV()">
+                        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                    </button>
                 </div>
 
                 <!-- Pagination Controls -->
@@ -773,6 +840,7 @@
         let idDelimiter = '-';
         let idPattern = 'every3';
         let photoModal = null;
+        let selectedObservations = new Set();
 
         // Initialize photo modal
         document.addEventListener('DOMContentLoaded', function() {
@@ -831,9 +899,16 @@
         // Open photo modal with full-size image
         function openPhotoModal(photoUrlFull, observationId, taxonName) {
             if (!photoUrlFull) {
-                const img = event.target;
+                // Try to get the full URL from the clicked element
+                const img = event ? event.target : null;
                 if (img && img.src) {
+                    // Try to get the original by removing size parameters
                     photoUrlFull = img.src;
+                    if (photoUrlFull.includes('?size=')) {
+                        photoUrlFull = photoUrlFull.split('?size=')[0];
+                    } else if (photoUrlFull.includes('&size=')) {
+                        photoUrlFull = photoUrlFull.split('&size=')[0];
+                    }
                 } else {
                     return;
                 }
@@ -856,6 +931,7 @@
 
             document.getElementById('modalPhotoLink').href = `https://www.inaturalist.org/observations/${observationId}`;
 
+            // Preload the full-size image
             const img = new Image();
             img.onload = function() {
                 modalImg.src = photoUrlFull;
@@ -869,7 +945,9 @@
                 }, 500);
             };
             img.onerror = function() {
+                // Try alternative URLs
                 let fallbackUrl = photoUrlFull;
+                // Try removing size parameters
                 if (fallbackUrl.includes('?size=')) {
                     fallbackUrl = fallbackUrl.split('?size=')[0];
                 } else if (fallbackUrl.includes('&size=')) {
@@ -906,6 +984,148 @@
             photoModal.show();
         }
 
+        // Selection functions
+        function toggleObservation(obsId, event) {
+            const checkbox = event.target;
+            const row = checkbox.closest('tr');
+
+            if (checkbox.checked) {
+                selectedObservations.add(obsId);
+                row.classList.add('selected');
+            } else {
+                selectedObservations.delete(obsId);
+                row.classList.remove('selected');
+            }
+
+            updateSelectionControls();
+        }
+
+        function selectAll() {
+            const checkboxes = document.querySelectorAll('#observationsBody input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = true;
+                const row = cb.closest('tr');
+                const obsId = parseInt(cb.dataset.obsId);
+                selectedObservations.add(obsId);
+                row.classList.add('selected');
+            });
+            updateSelectionControls();
+        }
+
+        function deselectAll() {
+            const checkboxes = document.querySelectorAll('#observationsBody input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = false;
+                const row = cb.closest('tr');
+                const obsId = parseInt(cb.dataset.obsId);
+                selectedObservations.delete(obsId);
+                row.classList.remove('selected');
+            });
+            updateSelectionControls();
+        }
+
+        // Export selected observations as CSV
+        function exportSelectedCSV() {
+            if (selectedObservations.size === 0) {
+                alert('No observations selected. Please select at least one observation to export.');
+                return;
+            }
+
+            // CSV headers
+            const headers = [
+                'Observation ID',
+                'Taxon Name',
+                'Taxon Rank',
+                'Common Name',
+                'Date Observed',
+                'Location',
+                'Observer',
+                'Quality Grade',
+                'URL'
+            ];
+
+            // Collect data for selected observations
+            const rows = [];
+            const rowElements = document.querySelectorAll('#observationsBody tr');
+
+            rowElements.forEach(row => {
+                const cb = row.querySelector('input[type="checkbox"]');
+                if (cb && cb.checked) {
+                    const cells = row.querySelectorAll('td');
+                    if (cells.length >= 8) {
+                        // Extract data from each cell
+                        const id = cells[0]?.textContent?.trim() || '';
+                        const taxonCell = cells[2];
+                        const taxonName = taxonCell?.querySelector('.taxon-name')?.textContent?.trim() || '';
+                        const taxonRank = taxonCell?.querySelector('.taxon-rank')?.textContent?.trim() || '';
+                        const date = cells[3]?.textContent?.trim() || '';
+                        const location = cells[4]?.textContent?.trim() || '';
+                        const observer = cells[5]?.textContent?.trim() || '';
+                        const quality = cells[6]?.textContent?.trim() || '';
+                        const url = cells[7]?.querySelector('a')?.href || '';
+
+                        // Get common name from the taxon cell if available
+                        // We need to get it from the data attribute or parse it
+                        // For now, we'll use a placeholder
+                        const commonName = '';
+
+                        rows.push([id, taxonName, taxonRank, commonName, date, location, observer, quality, url]);
+                    }
+                }
+            });
+
+            if (rows.length === 0) {
+                alert('No data found for selected observations.');
+                return;
+            }
+
+            // Build CSV content
+            let csvContent = headers.join(',') + '\n';
+
+            rows.forEach(row => {
+                // Escape fields that contain commas, quotes, or newlines
+                const escapedRow = row.map(field => {
+                    if (typeof field === 'string' && (field.includes(',') || field.includes('"') || field.includes('\n'))) {
+                        return `"${field.replace(/"/g, '""')}"`;
+                    }
+                    return field;
+                });
+                csvContent += escapedRow.join(',') + '\n';
+            });
+
+            // Add metadata as comments at the top
+            const metadata = [
+                `# Export Date: ${new Date().toISOString()}`,
+                `# Total Selected: ${rows.length}`,
+                `# Filters Applied: User=${currentFilters.username || 'None'}, Taxon=${currentFilters.taxon || 'None'}`,
+                '#'
+            ];
+            csvContent = metadata.join('\n') + '\n' + csvContent;
+
+            // Create download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `observations_${new Date().toISOString().slice(0,10)}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        function updateSelectionControls() {
+            const controls = document.getElementById('selectionControls');
+            const count = document.getElementById('selectionCount');
+
+            if (selectedObservations.size > 0) {
+                controls.style.display = 'flex';
+                count.textContent = `${selectedObservations.size} observation(s) selected`;
+            } else {
+                controls.style.display = 'none';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             const searchForm = document.getElementById('searchForm');
             const resetBtn = document.getElementById('resetBtn');
@@ -934,6 +1154,7 @@
             searchForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 currentPage = 1;
+                selectedObservations.clear();
                 performSearch();
             });
 
@@ -952,6 +1173,7 @@
                 currentSort = 'observed_on';
                 currentSortOrder = 'desc';
                 currentPage = 1;
+                selectedObservations.clear();
                 performSearch();
             });
 
@@ -969,6 +1191,7 @@
             }
 
             document.getElementById('sortBy').value = sortField;
+            selectedObservations.clear();
             performSearch(currentPage);
         }
 
@@ -1021,6 +1244,7 @@
                 observationsContainer.style.display = 'none';
                 errorMessage.style.display = 'none';
                 resultsSummary.innerHTML = '';
+                document.getElementById('selectionControls').style.display = 'none';
             }
 
             fetch(`/search?${params.toString()}`)
@@ -1088,6 +1312,7 @@
             if (observations.length === 0) {
                 noResults.style.display = 'block';
                 document.getElementById('paginationContainer').style.display = 'none';
+                document.getElementById('selectionControls').style.display = 'none';
                 return;
             }
 
@@ -1110,17 +1335,22 @@
                 let photoHtml = '';
                 if (obs.photo_url) {
                     const taxonName = obs.taxon_name.replace(/'/g, "\\'");
+                    // Use the full photo URL for the modal
+                    const fullPhotoUrl = obs.photo_url_full || obs.photo_url;
                     photoHtml = `
                         <img src="${obs.photo_url}"
                              alt="Photo"
                              class="photo-thumbnail"
                              loading="lazy"
-                             onclick="openPhotoModal('${obs.photo_url_full || obs.photo_url}', ${obs.id}, '${taxonName}')"
+                             onclick="openPhotoModal('${fullPhotoUrl}', ${obs.id}, '${taxonName}')"
                              title="Tap to view full size">
                     `;
                 } else {
                     photoHtml = `<div class="no-photo">No Photo</div>`;
                 }
+
+                // Check if this observation is selected
+                const isSelected = selectedObservations.has(obs.id);
 
                 row.innerHTML = `
                     <td><code style="font-size: 0.75rem;">${formattedId}</code></td>
@@ -1136,7 +1366,18 @@
                     <td style="font-size: 0.75rem;">${obs.user_login}</td>
                     <td>${qualityBadge}</td>
                     <td><a href="${obs.url}" target="_blank" class="observation-link" style="font-size: 0.75rem;">View</a></td>
+                    <td class="checkbox-cell">
+                        <input type="checkbox"
+                               data-obs-id="${obs.id}"
+                               ${isSelected ? 'checked' : ''}
+                               onchange="toggleObservation(${obs.id}, event)">
+                    </td>
                 `;
+
+                if (isSelected) {
+                    row.classList.add('selected');
+                }
+
                 observationsBody.appendChild(row);
             });
 
@@ -1158,6 +1399,9 @@
             if (activeSortHeader) {
                 activeSortHeader.className = currentSortOrder === 'desc' ? 'bi bi-arrow-down' : 'bi bi-arrow-up';
             }
+
+            // Update selection controls
+            updateSelectionControls();
         }
 
         function goToPage(direction) {
@@ -1173,6 +1417,7 @@
             }
 
             isPaginating = true;
+            selectedObservations.clear();
             performSearch(newPage);
         }
 
@@ -1183,6 +1428,7 @@
             errorText.textContent = message;
             document.getElementById('observationsContainer').style.display = 'none';
             document.getElementById('resultsSummary').innerHTML = '';
+            document.getElementById('selectionControls').style.display = 'none';
         }
     </script>
 </body>
