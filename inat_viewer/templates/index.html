@@ -51,10 +51,34 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Filter Section */
+        /* Filter Section - Collapsible */
         .filter-card h5 {
             font-size: 1.1rem;
-            margin-bottom: 1rem;
+            margin-bottom: 0;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .filter-card h5:hover {
+            color: #667eea;
+        }
+        .filter-card h5 i {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+        .filter-card h5 i.collapsed {
+            transform: rotate(-90deg);
+        }
+        .filter-content {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            max-height: 1000px;
+        }
+        .filter-content.hidden {
+            max-height: 0;
+            padding-top: 0;
         }
         .filter-card .form-label {
             font-size: 0.85rem;
@@ -173,7 +197,7 @@
         /* Table Header - Sticky with solid background */
         .table-scroll thead th {
             position: sticky;
-            top: 48px; /* Height of selection controls */
+            top: 48px;
             z-index: 102;
             background: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
@@ -217,7 +241,7 @@
         .col-date { width: 130px; min-width: 130px; }
         .col-location { width: 120px; min-width: 120px; }
         .col-observer { width: 100px; min-width: 100px; }
-        .col-quality { width: 80px; min-width: 80px; }
+        .col-quality { width: 90px; min-width: 90px; }
         .col-link { width: 60px; min-width: 60px; }
         .col-select { width: 50px; min-width: 50px; text-align: center; }
         .col-notes { width: 180px; min-width: 160px; }
@@ -259,6 +283,7 @@
         .notes-cell .form-control:not(:placeholder-shown) {
             background: #f8f9fa;
             border-color: #667eea;
+        }
 
         /* Selected row highlight */
         .table-scroll tr.selected td {
@@ -311,16 +336,20 @@
             font-size: 0.85rem;
         }
         .taxon-rank {
-            font-size: 0.6rem;
+            font-size: 0.65rem;
             color: #6c757d;
+            margin-top: 2px;
+            font-style: italic;
         }
 
         /* Quality Badge */
         .badge-quality {
-            padding: 3px 8px;
+            padding: 4px 10px;
             border-radius: 20px;
-            font-size: 0.65rem;
+            font-size: 0.7rem;
+            font-weight: 500;
             white-space: nowrap;
+            display: inline-block;
         }
         .badge-research {
             background-color: #28a745;
@@ -328,7 +357,11 @@
         }
         .badge-needs_id {
             background-color: #ffc107;
-            color: black;
+            color: #212529;
+        }
+        .badge-casual {
+            background-color: #6c757d;
+            color: white;
         }
 
         /* Sortable Headers */
@@ -427,7 +460,7 @@
             font-size: 0.9rem;
         }
 
-        /* Photo Modal - Full Screen Mobile */
+        /* Photo Modal - Full Screen with Dark Background */
         .modal-fullscreen-photo .modal-dialog {
             max-width: 98vw;
             margin: 0.5rem auto;
@@ -479,10 +512,17 @@
             filter: invert(1);
             opacity: 0.8;
         }
+        .modal-fullscreen-photo .btn-close:hover {
+            opacity: 1;
+        }
         .modal-fullscreen-photo .btn-secondary {
             background: rgba(255,255,255,0.15);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
+        }
+        .modal-fullscreen-photo .btn-secondary:hover {
+            background: rgba(255,255,255,0.25);
+            border-color: rgba(255,255,255,0.3);
         }
         .modal-fullscreen-photo .btn-primary {
             background: #667eea;
@@ -494,7 +534,7 @@
 
         .photo-modal-img {
             max-width: 95%;
-            max-height: 80vh;
+            max-height: 85vh;
             border-radius: 8px;
             box-shadow: 0 8px 40px rgba(0,0,0,0.6);
             object-fit: contain;
@@ -586,7 +626,7 @@
             .col-date { width: 110px; min-width: 110px; }
             .col-location { width: 100px; min-width: 100px; }
             .col-observer { width: 80px; min-width: 80px; }
-            .col-quality { width: 70px; min-width: 70px; }
+            .col-quality { width: 75px; min-width: 75px; }
             .col-link { width: 50px; min-width: 50px; }
             .col-select { width: 40px; min-width: 40px; }
             .col-notes { width: 140px; min-width: 120px; }
@@ -594,7 +634,7 @@
             .table-scroll thead th {
                 font-size: 0.65rem;
                 padding: 0.3rem 0.25rem;
-                top: 44px; /* Adjusted for mobile selection controls height */
+                top: 44px;
             }
             .table-scroll tbody td {
                 padding: 0.3rem 0.25rem;
@@ -620,7 +660,7 @@
             }
 
             .badge-quality {
-                font-size: 0.55rem;
+                font-size: 0.6rem;
                 padding: 2px 6px;
             }
 
@@ -700,7 +740,7 @@
             .col-date { width: 90px; min-width: 90px; }
             .col-location { width: 80px; min-width: 80px; }
             .col-observer { width: 70px; min-width: 70px; }
-            .col-quality { width: 60px; min-width: 60px; }
+            .col-quality { width: 65px; min-width: 65px; }
             .col-link { width: 45px; min-width: 45px; }
             .col-select { width: 35px; min-width: 35px; }
             .col-notes { width: 110px; min-width: 100px; }
@@ -708,7 +748,7 @@
             .table-scroll thead th {
                 font-size: 0.6rem;
                 padding: 0.15rem 0.1rem;
-                top: 40px; /* Adjusted for mobile selection controls height */
+                top: 40px;
             }
             .table-scroll tbody td {
                 padding: 0.15rem 0.1rem;
@@ -783,73 +823,78 @@
             <p class="lead">Explore wildlife observations with powerful filtering</p>
         </div>
 
-        <!-- Filter Section -->
+        <!-- Filter Section - Collapsible -->
         <div class="filter-card">
-            <h5>🔍 Filter Observations</h5>
-            <form id="searchForm">
-                <div class="row g-2">
-                    <div class="col-12 col-sm-6 col-md-3">
-                        <label for="username" class="form-label">Username</label>
-                        <input type="text" class="form-control" id="username" placeholder="e.g., john_doe">
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-3">
-                        <label for="taxon" class="form-label">Taxon</label>
-                        <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera">
-                    </div>
-                    <div class="col-6 col-sm-3 col-md-2">
-                        <label for="date_start" class="form-label">Date From</label>
-                        <input type="date" class="form-control" id="date_start">
-                    </div>
-                    <div class="col-6 col-sm-3 col-md-2">
-                        <label for="date_end" class="form-label">Date To</label>
-                        <input type="date" class="form-control" id="date_end">
-                    </div>
-                    <div class="col-12 col-sm-6 col-md-2">
-                        <label for="sortBy" class="form-label">Sort By</label>
-                        <select class="form-select" id="sortBy">
-                            <option value="observed_on">Date</option>
-                            <option value="id">ID</option>
-                            <option value="taxon">Taxon</option>
-                            <option value="user">Observer</option>
-                            <option value="place_guess">Location</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- ID Display Options -->
-                <div class="id-display-options">
-                    <h6>🔢 ID Display Options</h6>
-                    <div class="row g-2">
-                        <div class="col-12 col-sm-4">
-                            <label for="idDisplay" class="form-label">Display Mode</label>
-                            <select class="form-select" id="idDisplay">
-                                <option value="plain">Plain</option>
-                                <option value="delimited" selected>With Separators</option>
-                            </select>
+            <h5 onclick="toggleFilters()">
+                <span>🔍 Filter Observations</span>
+                <i class="bi bi-chevron-up" id="filterToggleIcon"></i>
+            </h5>
+            <div class="filter-content" id="filterContent">
+                <form id="searchForm">
+                    <div class="row g-2 mt-2">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <label for="username" class="form-label">Username</label>
+                            <input type="text" class="form-control" id="username" placeholder="e.g., john_doe">
                         </div>
-                        <div class="col-6 col-sm-4">
-                            <label for="idDelimiter" class="form-label">Delimiter</label>
-                            <input type="text" class="form-control" id="idDelimiter" value="-" maxlength="1" placeholder="-">
+                        <div class="col-12 col-sm-6 col-md-3">
+                            <label for="taxon" class="form-label">Taxon</label>
+                            <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera">
                         </div>
-                        <div class="col-6 col-sm-4">
-                            <label for="idPattern" class="form-label">Pattern</label>
-                            <select class="form-select" id="idPattern">
-                                <option value="every3">Every 3</option>
-                                <option value="every4">Every 4</option>
-                                <option value="every2">Every 2</option>
+                        <div class="col-6 col-sm-3 col-md-2">
+                            <label for="date_start" class="form-label">Date From</label>
+                            <input type="date" class="form-control" id="date_start">
+                        </div>
+                        <div class="col-6 col-sm-3 col-md-2">
+                            <label for="date_end" class="form-label">Date To</label>
+                            <input type="date" class="form-control" id="date_end">
+                        </div>
+                        <div class="col-12 col-sm-6 col-md-2">
+                            <label for="sortBy" class="form-label">Sort By</label>
+                            <select class="form-select" id="sortBy">
+                                <option value="observed_on">Date</option>
+                                <option value="id">ID</option>
+                                <option value="taxon">Taxon</option>
+                                <option value="user">Observer</option>
+                                <option value="place_guess">Location</option>
                             </select>
                         </div>
                     </div>
-                </div>
 
-                <div class="d-flex gap-2 mt-3 flex-wrap">
-                    <button type="submit" class="btn btn-primary flex-grow-1 flex-sm-grow-0" id="searchBtn">
-                        <span id="searchBtnText">Search</span>
-                        <span class="spinner-border spinner-border-sm" id="searchSpinner" style="display: none;"></span>
-                    </button>
-                    <button type="reset" class="btn btn-secondary flex-grow-1 flex-sm-grow-0" id="resetBtn">Clear</button>
-                </div>
-            </form>
+                    <!-- ID Display Options -->
+                    <div class="id-display-options">
+                        <h6>🔢 ID Display Options</h6>
+                        <div class="row g-2">
+                            <div class="col-12 col-sm-4">
+                                <label for="idDisplay" class="form-label">Display Mode</label>
+                                <select class="form-select" id="idDisplay">
+                                    <option value="plain">Plain</option>
+                                    <option value="delimited" selected>With Separators</option>
+                                </select>
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <label for="idDelimiter" class="form-label">Delimiter</label>
+                                <input type="text" class="form-control" id="idDelimiter" value="-" maxlength="1" placeholder="-">
+                            </div>
+                            <div class="col-6 col-sm-4">
+                                <label for="idPattern" class="form-label">Pattern</label>
+                                <select class="form-select" id="idPattern">
+                                    <option value="every3">Every 3</option>
+                                    <option value="every4">Every 4</option>
+                                    <option value="every2">Every 2</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-3 flex-wrap">
+                        <button type="submit" class="btn btn-primary flex-grow-1 flex-sm-grow-0" id="searchBtn">
+                            <span id="searchBtnText">Search</span>
+                            <span class="spinner-border spinner-border-sm" id="searchSpinner" style="display: none;"></span>
+                        </button>
+                        <button type="reset" class="btn btn-secondary flex-grow-1 flex-sm-grow-0" id="resetBtn">Clear</button>
+                    </div>
+                </form>
+            </div>
         </div>
 
         <!-- Results Section -->
@@ -949,7 +994,7 @@
     </div>
 
     <!-- Photo Modal -->
-    <div class="modal fade modal-fullscreen-photo" id="photoModal" tabindex="-1">
+    <div class="modal fade modal-fullscreen-photo" id="photoModal" tabindex="-1" data-bs-backdrop="static">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -1002,11 +1047,12 @@
         let photoModal = null;
         let selectedObservations = new Set();
         let observationNotes = {};
+        let filtersVisible = true;
 
         // Initialize photo modal
         document.addEventListener('DOMContentLoaded', function() {
             photoModal = new bootstrap.Modal(document.getElementById('photoModal'), {
-                backdrop: true,
+                backdrop: 'static',
                 keyboard: true,
                 focus: true
             });
@@ -1024,9 +1070,25 @@
                 overlay.classList.add('show');
                 setTimeout(() => {
                     overlay.classList.remove('show');
-                }, 3000);
+                }, 200);
             });
         });
+
+        // Toggle filters visibility
+        function toggleFilters() {
+            const content = document.getElementById('filterContent');
+            const icon = document.getElementById('filterToggleIcon');
+
+            if (filtersVisible) {
+                content.classList.add('hidden');
+                icon.className = 'bi bi-chevron-down';
+                filtersVisible = false;
+            } else {
+                content.classList.remove('hidden');
+                icon.className = 'bi bi-chevron-up';
+                filtersVisible = true;
+            }
+        }
 
         // Format ID with delimiters
         function formatId(id, displayMode, delimiter, pattern) {
@@ -1249,6 +1311,7 @@
                         const url = cells[7]?.querySelector('a')?.href || '';
                         const notesInput = cells[9]?.querySelector('input[type="text"]');
                         const notes = notesInput ? notesInput.value : '';
+                        const commonName = '';
 
                         rows.push([id, taxonName, taxonRank, commonName, date, location, observer, quality, url, notes]);
                     }
@@ -1512,13 +1575,14 @@
             observations.forEach(obs => {
                 const row = document.createElement('tr');
 
+                // Quality badge
                 let qualityBadge = '';
                 if (obs.quality_grade === 'research') {
                     qualityBadge = '<span class="badge-quality badge-research">Research</span>';
                 } else if (obs.quality_grade === 'needs_id') {
                     qualityBadge = '<span class="badge-quality badge-needs_id">Needs ID</span>';
                 } else {
-                    qualityBadge = `<span class="badge-quality" style="background:#6c757d;color:white;">${obs.quality_grade}</span>`;
+                    qualityBadge = `<span class="badge-quality badge-casual">${obs.quality_grade || 'Casual'}</span>`;
                 }
 
                 const formattedId = formatId(obs.id, idDisplayMode, idDelimiter, idPattern);
