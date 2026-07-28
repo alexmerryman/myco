@@ -105,43 +105,49 @@
             font-size: 0.8rem;
         }
 
-        /* Table Container with Sticky Header and Controls */
+        /* Table Container - No max-height, scrollable body only */
         .table-wrapper {
             position: relative;
-            max-height: 600px;
-            overflow-y: auto;
-            overflow-x: auto;
-            margin: 0 -0.5rem;
             border-radius: 8px;
             border: 1px solid #dee2e6;
+            overflow: hidden;
         }
 
-        .table-wrapper::-webkit-scrollbar {
+        /* Scrollable table body */
+        .table-scroll-body {
+            max-height: 500px;
+            overflow-y: auto;
+            overflow-x: auto;
+        }
+
+        .table-scroll-body::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
-        .table-wrapper::-webkit-scrollbar-track {
+        .table-scroll-body::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 4px;
         }
-        .table-wrapper::-webkit-scrollbar-thumb {
+        .table-scroll-body::-webkit-scrollbar-thumb {
             background: #c1c7cd;
             border-radius: 4px;
         }
-        .table-wrapper::-webkit-scrollbar-thumb:hover {
+        .table-scroll-body::-webkit-scrollbar-thumb:hover {
             background: #a8aeb4;
         }
 
-        /* Sticky Header Container */
+        /* Sticky Header Container - No gaps */
         .sticky-header-container {
             position: sticky;
             top: 0;
             z-index: 100;
             background: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
+            margin: 0;
+            padding: 0;
         }
 
-        /* Selection Controls - Always Visible */
+        /* Selection Controls - Directly above header with no gap */
         .selection-controls {
             display: flex;
             gap: 10px;
@@ -150,9 +156,6 @@
             padding: 8px 12px;
             background: #f8f9fa;
             border-bottom: 1px solid #dee2e6;
-            position: sticky;
-            top: 0;
-            z-index: 101;
             margin: 0;
         }
         .selection-controls .btn {
@@ -194,10 +197,10 @@
             cursor: not-allowed;
         }
 
-        /* Table Header - Sticky with solid background */
+        /* Table Header - Sticky with solid background, no gap */
         .table-scroll thead th {
             position: sticky;
-            top: 48px;
+            top: 0;
             z-index: 102;
             background: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
@@ -207,13 +210,14 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
 
-        /* Single Table with Sticky Header */
+        /* Single Table */
         .table-scroll {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
             table-layout: fixed;
             background: white;
+            margin: 0;
         }
 
         .table-scroll tbody td {
@@ -378,16 +382,15 @@
             font-size: 0.7rem;
         }
 
-        /* Pagination - Mobile Friendly */
+        /* Pagination - Always visible below the table */
         .pagination-container {
-            margin-top: 15px;
             display: flex;
             flex-direction: column;
             align-items: center;
             gap: 10px;
-            padding: 10px 0;
+            padding: 15px 0 5px 0;
             background: white;
-            border-radius: 0 0 8px 8px;
+            border-top: 1px solid #dee2e6;
         }
         .pagination-info {
             color: #6c757d;
@@ -641,7 +644,7 @@
             .table-scroll thead th {
                 font-size: 0.65rem;
                 padding: 0.3rem 0.25rem;
-                top: 44px;
+                top: 0;
             }
             .table-scroll tbody td {
                 padding: 0.3rem 0.25rem;
@@ -727,6 +730,10 @@
                 font-size: 0.65rem;
                 padding: 0.15rem 0.3rem;
             }
+
+            .table-scroll-body {
+                max-height: 400px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -754,7 +761,7 @@
             .table-scroll thead th {
                 font-size: 0.6rem;
                 padding: 0.15rem 0.1rem;
-                top: 40px;
+                top: 0;
             }
             .table-scroll tbody td {
                 padding: 0.15rem 0.1rem;
@@ -798,6 +805,10 @@
             .photo-info-overlay {
                 font-size: 0.6rem;
                 padding: 4px 10px;
+            }
+
+            .table-scroll-body {
+                max-height: 300px;
             }
         }
 
@@ -937,59 +948,63 @@
             </div>
 
             <!-- Observations Table with Sticky Header and Controls -->
-            <div class="table-wrapper" id="observationsContainer" style="display: none;">
-                <!-- Sticky Header Container -->
-                <div class="sticky-header-container">
-                    <!-- Selection Controls - Always Visible -->
-                    <div class="selection-controls" id="selectionControls">
-                        <span class="selection-count" id="selectionCount">0 observation(s) selected</span>
-                        <button class="btn btn-success btn-sm" onclick="selectAll()">
-                            <i class="bi bi-check-all"></i> Select All
-                        </button>
-                        <button class="btn btn-secondary btn-sm" onclick="deselectAll()">
-                            <i class="bi bi-x-circle"></i> Deselect All
-                        </button>
-                        <button class="btn btn-primary btn-sm" onclick="exportSelectedCSV()" id="exportBtn">
-                            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
-                        </button>
+            <div id="observationsContainer" style="display: none;">
+                <div class="table-wrapper">
+                    <!-- Sticky Header Container - Selection controls directly above header -->
+                    <div class="sticky-header-container">
+                        <!-- Selection Controls -->
+                        <div class="selection-controls" id="selectionControls">
+                            <span class="selection-count" id="selectionCount">0 observation(s) selected</span>
+                            <button class="btn btn-success btn-sm" onclick="selectAll()">
+                                <i class="bi bi-check-all"></i> Select All
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="deselectAll()">
+                                <i class="bi bi-x-circle"></i> Deselect All
+                            </button>
+                            <button class="btn btn-primary btn-sm" onclick="exportSelectedCSV()" id="exportBtn">
+                                <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                            </button>
+                        </div>
+
+                        <!-- Scrollable Table Body -->
+                        <div class="table-scroll-body">
+                            <table class="table-scroll">
+                                <thead>
+                                    <tr>
+                                        <th class="sortable-header col-id" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
+                                            ID <i class="bi bi-arrow-down-up"></i>
+                                        </th>
+                                        <th class="col-photo">Photo</th>
+                                        <th class="sortable-header col-taxon" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 140px;">
+                                            Taxon <i class="bi bi-arrow-down-up"></i>
+                                        </th>
+                                        <th class="sortable-header col-date" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 130px;">
+                                            Observed Date/Time <i class="bi bi-arrow-down-up"></i>
+                                        </th>
+                                        <th class="sortable-header col-location" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 120px;">
+                                            Location <i class="bi bi-arrow-down-up"></i>
+                                        </th>
+                                        <th class="sortable-header col-observer" data-sort="user" onclick="sortTable('user')" style="min-width: 100px;">
+                                            Observer <i class="bi bi-arrow-down-up"></i>
+                                        </th>
+                                        <th class="col-quality">Quality</th>
+                                        <th class="col-link">Link</th>
+                                        <th class="col-select">Select</th>
+                                        <th class="col-notes">Notes</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="observationsBody">
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
 
-                    <!-- Table Header -->
-                    <table class="table-scroll">
-                        <thead>
-                            <tr>
-                                <th class="sortable-header col-id" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
-                                    ID <i class="bi bi-arrow-down-up"></i>
-                                </th>
-                                <th class="col-photo">Photo</th>
-                                <th class="sortable-header col-taxon" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 140px;">
-                                    Taxon <i class="bi bi-arrow-down-up"></i>
-                                </th>
-                                <th class="sortable-header col-date" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 130px;">
-                                    Observed Date/Time <i class="bi bi-arrow-down-up"></i>
-                                </th>
-                                <th class="sortable-header col-location" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 120px;">
-                                    Location <i class="bi bi-arrow-down-up"></i>
-                                </th>
-                                <th class="sortable-header col-observer" data-sort="user" onclick="sortTable('user')" style="min-width: 100px;">
-                                    Observer <i class="bi bi-arrow-down-up"></i>
-                                </th>
-                                <th class="col-quality">Quality</th>
-                                <th class="col-link">Link</th>
-                                <th class="col-select">Select</th>
-                                <th class="col-notes">Notes</th>
-                            </tr>
-                        </thead>
-                        <tbody id="observationsBody">
-                        </tbody>
-                    </table>
+                    <div id="noResults" style="display: none;" class="text-center text-muted py-3">
+                        <p style="font-size: 0.9rem;">No observations found matching your filters.</p>
+                    </div>
                 </div>
 
-                <div id="noResults" style="display: none;" class="text-center text-muted py-3">
-                    <p style="font-size: 0.9rem;">No observations found matching your filters.</p>
-                </div>
-
-                <!-- Pagination Controls -->
+                <!-- Pagination Controls - Outside the scrollable area -->
                 <div class="pagination-container" id="paginationContainer" style="display: none;">
                     <div class="pagination-info" id="paginationInfo">
                         Showing <span id="pageStart">0</span> - <span id="pageEnd">0</span> of <span id="totalResults">0</span>
