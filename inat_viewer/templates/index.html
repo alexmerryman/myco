@@ -112,9 +112,9 @@
         .sticky-header-container {
             position: sticky;
             top: 0;
-            z-index: 20;
-            background: white;
-            border-bottom: 2px solid #e9ecef;
+            z-index: 100;
+            background: #f8f9fa;
+            border-bottom: 2px solid #dee2e6;
         }
 
         /* Selection Controls - Always Visible */
@@ -125,7 +125,11 @@
             flex-wrap: wrap;
             padding: 8px 12px;
             background: #f8f9fa;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 1px solid #dee2e6;
+            position: sticky;
+            top: 0;
+            z-index: 101;
+            margin: 0;
         }
         .selection-controls .btn {
             font-size: 0.85rem;
@@ -161,33 +165,62 @@
             background-color: #5a6fd6;
             border-color: #4a5fc4;
         }
-        .selection-controls .btn-success:disabled,
-        .selection-controls .btn-secondary:disabled,
         .selection-controls .btn-primary:disabled {
             opacity: 0.65;
             cursor: not-allowed;
         }
 
-        /* Table */
-        .table {
-            font-size: 0.85rem;
-            margin-bottom: 0;
-            min-width: 750px;
-        }
-        .table thead th {
-            font-size: 0.75rem;
-            padding: 0.5rem 0.4rem;
-            white-space: nowrap;
-            background: #f8f9fa;
+        /* Table Header - Sticky with solid background */
+        .table-scroll thead th {
             position: sticky;
-            top: 0;
-            z-index: 10;
+            top: 48px; /* Height of selection controls */
+            z-index: 102;
+            background: #f8f9fa;
             border-bottom: 2px solid #dee2e6;
+            padding: 0.5rem 0.4rem;
+            font-size: 0.75rem;
+            white-space: nowrap;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .table td {
+
+        /* Single Table with Sticky Header */
+        .table-scroll {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            table-layout: fixed;
+            background: white;
+        }
+
+        .table-scroll tbody td {
             padding: 0.5rem 0.4rem;
             vertical-align: middle;
+            border-bottom: 1px solid #dee2e6;
+            background: white;
         }
+
+        .table-scroll tbody tr:hover td {
+            background: #f8f9fa;
+        }
+
+        .table-scroll tbody tr.selected td {
+            background: rgba(102, 126, 234, 0.08) !important;
+        }
+        .table-scroll tbody tr.selected:hover td {
+            background: rgba(102, 126, 234, 0.12) !important;
+        }
+
+        /* Column Widths */
+        .col-id { width: 80px; min-width: 80px; }
+        .col-photo { width: 80px; min-width: 80px; }
+        .col-taxon { width: 140px; min-width: 140px; }
+        .col-date { width: 130px; min-width: 130px; }
+        .col-location { width: 120px; min-width: 120px; }
+        .col-observer { width: 100px; min-width: 100px; }
+        .col-quality { width: 80px; min-width: 80px; }
+        .col-link { width: 60px; min-width: 60px; }
+        .col-select { width: 50px; min-width: 50px; text-align: center; }
+        .col-notes { width: 180px; min-width: 160px; }
 
         /* Checkbox column */
         .checkbox-cell {
@@ -204,12 +237,35 @@
             transform: scale(1.1);
         }
 
-        /* Selected row highlight */
-        .table tr.selected {
-            background-color: rgba(102, 126, 234, 0.1) !important;
+        /* Notes column */
+        .notes-cell .form-control {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.4rem;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            transition: border-color 0.2s;
+            background: transparent;
+            width: 100%;
         }
-        .table tr.selected td {
+        .notes-cell .form-control:focus {
+            border-color: #667eea;
+            background: white;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+        .notes-cell .form-control::placeholder {
+            color: #adb5bd;
+            font-style: italic;
+        }
+        .notes-cell .form-control:not(:placeholder-shown) {
+            background: #f8f9fa;
+            border-color: #667eea;
+
+        /* Selected row highlight */
+        .table-scroll tr.selected td {
             border-left: 3px solid #667eea;
+        }
+        .table-scroll tr.selected .notes-cell .form-control {
+            background: rgba(102, 126, 234, 0.05);
         }
 
         /* Photo Thumbnail - Mobile Optimized */
@@ -239,9 +295,9 @@
             border: 2px dashed #dee2e6;
             text-align: center;
             padding: 5px;
+            margin: 0 auto;
         }
         .photo-cell {
-            min-width: 80px;
             text-align: center;
         }
 
@@ -255,7 +311,7 @@
             font-size: 0.85rem;
         }
         .taxon-rank {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #6c757d;
         }
 
@@ -523,20 +579,37 @@
                 height: 50px;
                 font-size: 0.55rem;
             }
-            .photo-cell {
-                min-width: 60px;
-            }
 
-            .table {
-                font-size: 0.75rem;
-                min-width: 650px;
-            }
-            .table thead th {
+            .col-id { width: 60px; min-width: 60px; }
+            .col-photo { width: 60px; min-width: 60px; }
+            .col-taxon { width: 120px; min-width: 120px; }
+            .col-date { width: 110px; min-width: 110px; }
+            .col-location { width: 100px; min-width: 100px; }
+            .col-observer { width: 80px; min-width: 80px; }
+            .col-quality { width: 70px; min-width: 70px; }
+            .col-link { width: 50px; min-width: 50px; }
+            .col-select { width: 40px; min-width: 40px; }
+            .col-notes { width: 140px; min-width: 120px; }
+
+            .table-scroll thead th {
                 font-size: 0.65rem;
                 padding: 0.3rem 0.25rem;
+                top: 44px; /* Adjusted for mobile selection controls height */
             }
-            .table td {
+            .table-scroll tbody td {
                 padding: 0.3rem 0.25rem;
+            }
+
+            .selection-controls {
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            .selection-controls .btn {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.5rem;
+            }
+            .selection-count {
+                font-size: 0.8rem;
             }
 
             .taxon-name {
@@ -604,16 +677,9 @@
                 height: 16px;
             }
 
-            .selection-controls {
-                padding: 6px 8px;
-                gap: 6px;
-            }
-            .selection-controls .btn {
-                font-size: 0.75rem;
-                padding: 0.2rem 0.5rem;
-            }
-            .selection-count {
-                font-size: 0.8rem;
+            .notes-cell .form-control {
+                font-size: 0.65rem;
+                padding: 0.15rem 0.3rem;
             }
         }
 
@@ -627,16 +693,39 @@
                 height: 40px;
                 font-size: 0.5rem;
             }
-            .photo-cell {
-                min-width: 50px;
+
+            .col-id { width: 50px; min-width: 50px; }
+            .col-photo { width: 50px; min-width: 50px; }
+            .col-taxon { width: 100px; min-width: 100px; }
+            .col-date { width: 90px; min-width: 90px; }
+            .col-location { width: 80px; min-width: 80px; }
+            .col-observer { width: 70px; min-width: 70px; }
+            .col-quality { width: 60px; min-width: 60px; }
+            .col-link { width: 45px; min-width: 45px; }
+            .col-select { width: 35px; min-width: 35px; }
+            .col-notes { width: 110px; min-width: 100px; }
+
+            .table-scroll thead th {
+                font-size: 0.6rem;
+                padding: 0.15rem 0.1rem;
+                top: 40px; /* Adjusted for mobile selection controls height */
             }
-            .table {
-                min-width: 550px;
+            .table-scroll tbody td {
+                padding: 0.15rem 0.1rem;
+            }
+
+            .selection-controls {
+                padding: 4px 6px;
+                gap: 4px;
+            }
+            .selection-controls .btn {
+                font-size: 0.7rem;
+                padding: 0.15rem 0.4rem;
+            }
+            .selection-count {
                 font-size: 0.7rem;
             }
-            .table thead th, .table td {
-                padding: 0.2rem 0.15rem;
-            }
+
             .filter-card .form-control,
             .filter-card .form-select {
                 font-size: 0.8rem;
@@ -651,6 +740,10 @@
             .checkbox-cell input[type="checkbox"] {
                 width: 14px;
                 height: 14px;
+            }
+            .notes-cell .form-control {
+                font-size: 0.6rem;
+                min-width: 60px;
             }
         }
 
@@ -797,38 +890,35 @@
                     </div>
 
                     <!-- Table Header -->
-                    <table class="table table-striped table-hover">
+                    <table class="table-scroll">
                         <thead>
                             <tr>
-                                <th class="sortable-header" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
+                                <th class="sortable-header col-id" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
                                     ID <i class="bi bi-arrow-down-up"></i>
                                 </th>
-                                <th style="min-width: 80px;">Photo</th>
-                                <th class="sortable-header" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 140px;">
+                                <th class="col-photo">Photo</th>
+                                <th class="sortable-header col-taxon" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 140px;">
                                     Taxon <i class="bi bi-arrow-down-up"></i>
                                 </th>
-                                <th class="sortable-header" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 130px;">
+                                <th class="sortable-header col-date" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 130px;">
                                     Date/Time <i class="bi bi-arrow-down-up"></i>
                                 </th>
-                                <th class="sortable-header" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 120px;">
+                                <th class="sortable-header col-location" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 120px;">
                                     Location <i class="bi bi-arrow-down-up"></i>
                                 </th>
-                                <th class="sortable-header" data-sort="user" onclick="sortTable('user')" style="min-width: 100px;">
+                                <th class="sortable-header col-observer" data-sort="user" onclick="sortTable('user')" style="min-width: 100px;">
                                     Observer <i class="bi bi-arrow-down-up"></i>
                                 </th>
-                                <th style="min-width: 80px;">Quality</th>
-                                <th style="min-width: 60px;">Link</th>
-                                <th style="min-width: 50px;" class="text-center">Select</th>
+                                <th class="col-quality">Quality</th>
+                                <th class="col-link">Link</th>
+                                <th class="col-select">Select</th>
+                                <th class="col-notes">Notes</th>
                             </tr>
                         </thead>
+                        <tbody id="observationsBody">
+                        </tbody>
                     </table>
                 </div>
-
-                <!-- Table Body -->
-                <table class="table table-striped table-hover">
-                    <tbody id="observationsBody">
-                    </tbody>
-                </table>
 
                 <div id="noResults" style="display: none;" class="text-center text-muted py-3">
                     <p style="font-size: 0.9rem;">No observations found matching your filters.</p>
@@ -911,6 +1001,7 @@
         let idPattern = 'every3';
         let photoModal = null;
         let selectedObservations = new Set();
+        let observationNotes = {};
 
         // Initialize photo modal
         document.addEventListener('DOMContentLoaded', function() {
@@ -1054,6 +1145,28 @@
             photoModal.show();
         }
 
+        // Format timestamp for filename (local timezone)
+        function getTimestampFilename() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            return `${year}${month}${day}_${hours}${minutes}${seconds}`;
+        }
+
+        // Save note for an observation
+        function saveNote(obsId, event) {
+            const note = event.target.value;
+            if (note.trim()) {
+                observationNotes[obsId] = note.trim();
+            } else {
+                delete observationNotes[obsId];
+            }
+        }
+
         // Selection functions
         function toggleObservation(obsId, event) {
             const checkbox = event.target;
@@ -1111,7 +1224,8 @@
                 'Location',
                 'Observer',
                 'Quality Grade',
-                'URL'
+                'URL',
+                'Notes'
             ];
 
             // Collect data for selected observations
@@ -1122,7 +1236,7 @@
                 const cb = row.querySelector('input[type="checkbox"]');
                 if (cb && cb.checked) {
                     const cells = row.querySelectorAll('td');
-                    if (cells.length >= 8) {
+                    if (cells.length >= 10) {
                         // Extract data from each cell
                         const id = cells[0]?.textContent?.trim() || '';
                         const taxonCell = cells[2];
@@ -1133,11 +1247,10 @@
                         const observer = cells[5]?.textContent?.trim() || '';
                         const quality = cells[6]?.textContent?.trim() || '';
                         const url = cells[7]?.querySelector('a')?.href || '';
+                        const notesInput = cells[9]?.querySelector('input[type="text"]');
+                        const notes = notesInput ? notesInput.value : '';
 
-                        // Get common name from the taxon cell if available
-                        const commonName = '';
-
-                        rows.push([id, taxonName, taxonRank, commonName, date, location, observer, quality, url]);
+                        rows.push([id, taxonName, taxonRank, commonName, date, location, observer, quality, url, notes]);
                     }
                 }
             });
@@ -1161,21 +1274,31 @@
                 csvContent += escapedRow.join(',') + '\n';
             });
 
+            // Get current timestamp for metadata
+            const now = new Date();
+            const timestamp = now.toISOString();
+            const localTimestamp = now.toLocaleString();
+
             // Add metadata as comments at the top
             const metadata = [
-                `# Export Date: ${new Date().toISOString()}`,
+                `# Export Date: ${timestamp}`,
+                `# Export Date (Local): ${localTimestamp}`,
                 `# Total Selected: ${rows.length}`,
                 `# Filters Applied: User=${currentFilters.username || 'None'}, Taxon=${currentFilters.taxon || 'None'}`,
                 '#'
             ];
             csvContent = metadata.join('\n') + '\n' + csvContent;
 
+            // Create filename with timestamp
+            const timestampStr = getTimestampFilename();
+            const filename = `observations_${timestampStr}.csv`;
+
             // Create download
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `observations_${new Date().toISOString().slice(0,10)}.csv`;
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -1222,6 +1345,7 @@
                 e.preventDefault();
                 currentPage = 1;
                 selectedObservations.clear();
+                observationNotes = {};
                 performSearch();
             });
 
@@ -1241,6 +1365,7 @@
                 currentSortOrder = 'desc';
                 currentPage = 1;
                 selectedObservations.clear();
+                observationNotes = {};
                 performSearch();
             });
 
@@ -1259,6 +1384,7 @@
 
             document.getElementById('sortBy').value = sortField;
             selectedObservations.clear();
+            observationNotes = {};
             performSearch(currentPage);
         }
 
@@ -1416,26 +1542,35 @@
 
                 // Check if this observation is selected
                 const isSelected = selectedObservations.has(obs.id);
+                const savedNote = observationNotes[obs.id] || '';
 
                 row.innerHTML = `
-                    <td><code style="font-size: 0.75rem;">${formattedId}</code></td>
-                    <td class="photo-cell">${photoHtml}</td>
-                    <td>
+                    <td class="col-id"><code style="font-size: 0.75rem;">${formattedId}</code></td>
+                    <td class="col-photo photo-cell">${photoHtml}</td>
+                    <td class="col-taxon">
                         <div class="taxon-display">
                             <span class="taxon-name"><em>${obs.taxon_name}</em></span>
                             <span class="taxon-rank">${obs.taxon_rank}</span>
                         </div>
                     </td>
-                    <td style="font-size: 0.75rem;">${obs.observed_on_formatted}</td>
-                    <td style="font-size: 0.75rem;">${obs.place_guess}</td>
-                    <td style="font-size: 0.75rem;">${obs.user_login}</td>
-                    <td>${qualityBadge}</td>
-                    <td><a href="${obs.url}" target="_blank" class="observation-link" style="font-size: 0.75rem;">View</a></td>
-                    <td class="checkbox-cell">
+                    <td class="col-date" style="font-size: 0.75rem;">${obs.observed_on_formatted}</td>
+                    <td class="col-location" style="font-size: 0.75rem;">${obs.place_guess}</td>
+                    <td class="col-observer" style="font-size: 0.75rem;">${obs.user_login}</td>
+                    <td class="col-quality">${qualityBadge}</td>
+                    <td class="col-link"><a href="${obs.url}" target="_blank" class="observation-link" style="font-size: 0.75rem;">View</a></td>
+                    <td class="col-select checkbox-cell">
                         <input type="checkbox"
                                data-obs-id="${obs.id}"
                                ${isSelected ? 'checked' : ''}
                                onchange="toggleObservation(${obs.id}, event)">
+                    </td>
+                    <td class="col-notes notes-cell">
+                        <input type="text"
+                               class="form-control"
+                               placeholder="Add note..."
+                               value="${savedNote.replace(/"/g, '&quot;')}"
+                               onchange="saveNote(${obs.id}, event)"
+                               onkeyup="if(event.key==='Enter'){this.blur();}">
                     </td>
                 `;
 
@@ -1483,6 +1618,7 @@
 
             isPaginating = true;
             selectedObservations.clear();
+            observationNotes = {};
             performSearch(newPage);
         }
 
