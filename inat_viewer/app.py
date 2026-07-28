@@ -53,18 +53,83 @@ def format_id_with_delimiters(id_value, delimiter='-', pattern='every3'):
         return id_str
 
 
-def get_photo_url(observation):
-    """Extract the first photo URL from an observation."""
+def get_photo_url(observation, size='square'):
+    """
+    Extract a photo URL from an observation at the specified size.
+
+    Args:
+        observation: The observation data from iNaturalist
+        size: The desired photo size ('square', 'small', 'medium', 'large', 'original')
+
+    Returns:
+        URL string for the photo at the specified size
+    """
     photos = observation.get('photos', [])
     if photos and len(photos) > 0:
-        # Get the square thumbnail (smallest) for better performance
         photo = photos[0]
-        # Try to get the square URL first, fall back to original
-        for size in ['square', 'small', 'medium', 'large', 'original']:
+
+        # If size is specified and exists in the photo data, use it
+        if size in photo:
+            return photo[size]
+
+        # Try to get the URL directly
+        url = photo.get('url', '')
+        if url:
+            # If it's a thumbnail URL, try to convert to original size
+            if 'square' in url or 'small' in url or 'medium' in url:
+                # iNaturalist often uses '?size=square' or similar in the URL
+                # Remove size parameter to get original
+                if '?size=' in url:
+                    url = url.split('?size=')[0]
+                elif '&size=' in url:
+                    url = url.split('&size=')[0]
+            return url
+
+        # Fallback: try to get the largest available size
+        for size_key in ['original', 'large', 'medium', 'small', 'square']:
+            if size_key in photo:
+                return photo[size_key]
+
+    return ''
+
+
+def get_full_size_photo_url(observation):
+    """
+    Get the full-size/original photo URL from an observation.
+
+    Args:
+        observation: The observation data from iNaturalist
+
+    Returns:
+        Full-size photo URL string
+    """
+    photos = observation.get('photos', [])
+    if photos and len(photos) > 0:
+        photo = photos[0]
+
+        # Try to get original size first
+        for size in ['original', 'large', 'medium', 'small', 'square']:
             if size in photo:
-                return photo[size]
-        # If no size key found, try to get the URL directly
-        return photo.get('url', '')
+                url = photo[size]
+                # Clean up URL if it has size parameters
+                if '?size=' in url:
+                    url = url.split('?size=')[0]
+                elif '&size=' in url:
+                    url = url.split('&size=')[0]
+                print("photo url (size param):", url)
+                return url
+
+        # If no size keys, try the URL directly
+        url = photo.get('url', '')
+        if url:
+            # Remove size parameters to get full image
+            if '?size=' in url:
+                url = url.split('?size=')[0]
+            elif '&size=' in url:
+                url = url.split('&size=')[0]
+            print("photo url:", url)
+            return url
+
     return ''
 
 
@@ -187,8 +252,9 @@ def search_observations():
                 taxon_data = obs.get('taxon', {})
                 taxon_rank = taxon_data.get('rank', 'Unknown')
 
-                # Get photo URL
-                photo_url = get_photo_url(obs)
+                # Get photo URLs (thumbnail and full-size)
+                photo_url_thumbnail = get_photo_url(obs, 'square')
+                photo_url_full = get_full_size_photo_url(obs)
 
                 # Format observation date with time
                 observed_on = obs.get('observed_on', 'N/A')
@@ -198,7 +264,7 @@ def search_observations():
                 formatted_obs = {
                     'id': obs.get('id'),
                     'taxon_name': taxon_data.get('name', 'Unknown'),
-                    'taxon_rank': f"{taxon_rank}",
+                    'taxon_rank': taxon_rank,
                     'observed_on': observed_on,
                     'observed_on_formatted': formatted_date,
                     'place_guess': obs.get('place_guess', 'Unknown location'),
@@ -206,7 +272,8 @@ def search_observations():
                     'url': obs.get('uri'),
                     'quality_grade': obs.get('quality_grade', 'N/A'),
                     'iconic_taxon_name': taxon_data.get('iconic_taxon_name', 'Unknown'),
-                    'photo_url': photo_url,
+                    'photo_url': photo_url_thumbnail,
+                    'photo_url_full': photo_url_full,
                     'photos_count': len(obs.get('photos', []))
                 }
                 formatted_observations.append(formatted_obs)
