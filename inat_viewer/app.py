@@ -1,4 +1,4 @@
-# app.py
+# app.py (complete corrected version)
 from flask import Flask, render_template, request, jsonify
 import requests
 from datetime import datetime
@@ -12,40 +12,55 @@ app.config['SECRET_KEY'] = 'your-secret-key-here'
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
-# iNaturalist API base URL
-INATURALIST_API = "https://api.inaturalist.org/v1/observations"
+# iNaturalist API v2 base URL
+INATURALIST_API_V2 = "https://api.inaturalist.org/v2/observations"
 PER_PAGE = 50  # Observations per page
+
+# v2 uses 'fields' parameter with dot notation for nested fields
+# Format: field1,field2,nested.field1,nested.field2
+FIELDS_TO_RETURN = [
+    'id',
+    'observed_on',
+    'observed_on_details',
+    'place_guess',
+    'quality_grade',
+    'latitude',
+    'longitude',
+    'positional_accuracy',
+    'taxon.id',
+    'taxon.name',
+    'taxon.rank',
+    'taxon.rank_level',
+    'taxon.preferred_common_name',
+    'taxon.iconic_taxon_name',
+    'user.id',
+    'user.login',
+    'user.name',
+    'observation_photos.photo.id',
+    'observation_photos.photo.url',
+    'observation_photos.photo.square',
+    'observation_photos.photo.medium',
+    'observation_photos.photo.large',
+    'observation_photos.photo.original'
+]
 
 
 def format_id_with_delimiters(id_value, delimiter='-', pattern='every3'):
-    """
-    Format an ID with delimiters based on user preferences.
-
-    Args:
-        id_value: The ID string to format
-        delimiter: Character to use as delimiter (default: '-')
-        pattern: Pattern for delimiter placement ('every3', 'every4', 'every2')
-
-    Returns:
-        Formatted ID string with delimiters
-    """
+    """Format an ID with delimiters based on user preferences."""
     if not id_value:
         return id_value
 
     id_str = str(id_value)
 
     if pattern == 'every3':
-        # Place delimiter after every 3 characters from the right
         parts = [id_str[max(0, i - 3):i] for i in range(len(id_str), 0, -3)]
         parts.reverse()
         return delimiter.join(parts)
     elif pattern == 'every4':
-        # Place delimiter after every 4 characters from the right
         parts = [id_str[max(0, i - 4):i] for i in range(len(id_str), 0, -4)]
         parts.reverse()
         return delimiter.join(parts)
     elif pattern == 'every2':
-        # Place delimiter after every 2 characters from the right
         parts = [id_str[max(0, i - 2):i] for i in range(len(id_str), 0, -2)]
         parts.reverse()
         return delimiter.join(parts)
@@ -54,38 +69,31 @@ def format_id_with_delimiters(id_value, delimiter='-', pattern='every3'):
 
 
 def get_photo_url(observation, size='square'):
-    """
-    Extract a photo URL from an observation at the specified size.
+    """Extract a photo URL from an observation at the specified size."""
+    photos = []
 
-    Args:
-        observation: The observation data from iNaturalist
-        size: The desired photo size ('square', 'small', 'medium', 'large', 'original')
+    if 'observation_photos' in observation:
+        for obs_photo in observation.get('observation_photos', []):
+            if 'photo' in obs_photo:
+                photos.append(obs_photo['photo'])
 
-    Returns:
-        URL string for the photo at the specified size
-    """
-    photos = observation.get('photos', [])
+    if not photos and 'photos' in observation:
+        photos = observation.get('photos', [])
+
     if photos and len(photos) > 0:
         photo = photos[0]
 
-        # If size is specified and exists in the photo data, use it
         if size in photo:
             return photo[size]
 
-        # Try to get the URL directly
         url = photo.get('url', '')
         if url:
-            # If it's a thumbnail URL, try to convert to original size
-            if 'square' in url or 'small' in url or 'medium' in url:
-                # iNaturalist often uses '?size=square' or similar in the URL
-                # Remove size parameter to get original
-                if '?size=' in url:
-                    url = url.split('?size=')[0]
-                elif '&size=' in url:
-                    url = url.split('&size=')[0]
+            if '?size=' in url:
+                url = url.split('?size=')[0]
+            elif '&size=' in url:
+                url = url.split('&size=')[0]
             return url
 
-        # Fallback: try to get the largest available size
         for size_key in ['original', 'large', 'medium', 'small', 'square']:
             if size_key in photo:
                 return photo[size_key]
@@ -93,41 +101,40 @@ def get_photo_url(observation, size='square'):
     return ''
 
 
-def get_full_size_photo_url(observation):
-    """
-    Get the full-size/original photo URL from an observation.
+def get_full_size_photo_url(observation: dict):
+    """Get the full-size/original photo URL from an observation."""
+    photos = []
 
-    Args:
-        observation: The observation data from iNaturalist
+    print("observation_photos:", observation.get('observation_photos', []))
 
-    Returns:
-        Full-size photo URL string
-    """
-    photos = observation.get('photos', [])
+    if 'observation_photos' in observation:
+        for obs_photo in observation.get('observation_photos', []):
+            if 'photo' in obs_photo:
+                photos.append(obs_photo['photo'])
+
+    if not photos and 'photos' in observation:
+        photos = observation.get('photos', [])
+
+    print(photos)
+
     if photos and len(photos) > 0:
         photo = photos[0]
 
-        # Try to get original size first
         for size in ['original', 'large', 'medium', 'small', 'square']:
             if size in photo:
                 url = photo[size]
-                # Clean up URL if it has size parameters
                 if '?size=' in url:
                     url = url.split('?size=')[0]
                 elif '&size=' in url:
                     url = url.split('&size=')[0]
-                print("photo url (size param):", url)
                 return url
 
-        # If no size keys, try the URL directly
         url = photo.get('url', '')
         if url:
-            # Remove size parameters to get full image
             if '?size=' in url:
                 url = url.split('?size=')[0]
             elif '&size=' in url:
                 url = url.split('&size=')[0]
-            print("photo url:", url)
             return url
 
     return ''
@@ -139,22 +146,18 @@ def format_observed_date(observed_on, observed_on_details=None):
         return 'N/A'
 
     try:
-        # If we have detailed time information
         if observed_on_details:
-            # Try to parse the datetime from details
             date_str = observed_on_details.get('date', observed_on)
             time_str = observed_on_details.get('time', '')
             time_zone = observed_on_details.get('time_zone', 'UTC')
 
             if time_str:
-                # Try to parse full datetime
                 try:
                     dt = datetime.fromisoformat(f"{date_str}T{time_str}")
                     return dt.strftime('%Y-%m-%d %H:%M:%S')
                 except:
                     pass
 
-        # Fallback: just format the date
         dt = datetime.strptime(observed_on, '%Y-%m-%d')
         return dt.strftime('%Y-%m-%d')
     except:
@@ -169,7 +172,7 @@ def index():
 
 @app.route('/search', methods=['GET'])
 def search_observations():
-    """Search iNaturalist observations based on provided filters with pagination."""
+    """Search iNaturalist observations using v2 API with provided filters and pagination."""
     try:
         # Get filter parameters from request
         username = request.args.get('username', '').strip()
@@ -189,16 +192,20 @@ def search_observations():
         if page < 1:
             page = 1
 
-        # Build API query parameters
+        # Build API v2 query parameters
         params = {
             'per_page': PER_PAGE,
             'page': page,
-            'quality_grade': 'research,needs_id'
+            'quality_grade': 'research,needs_id',
+            # v2 uses 'fields' parameter to specify which fields to return
+            'fields': ','.join(FIELDS_TO_RETURN)
         }
 
+        # Add user filter (v2 can use either user_id or user_login)
         if username:
             params['user_login'] = username
 
+        # Add taxon filter
         if taxon:
             params['taxon_name'] = taxon
 
@@ -218,26 +225,33 @@ def search_observations():
                 pass
 
         # Add sorting
-        if sort_by == 'observed_on':
-            params['order_by'] = 'observed_on'
-        elif sort_by == 'id':
-            params['order_by'] = 'id'
-        elif sort_by == 'taxon':
-            params['order_by'] = 'taxon'
-        elif sort_by == 'user':
-            params['order_by'] = 'user'
-        elif sort_by == 'place_guess':
-            params['order_by'] = 'place_guess'
-        else:
-            params['order_by'] = 'observed_on'
-
+        sort_mapping = {
+            'observed_on': 'observed_on',
+            'id': 'id',
+            'taxon': 'taxon_name',
+            'user': 'user_login',
+            'place_guess': 'place_guess'
+        }
+        params['order_by'] = sort_mapping.get(sort_by, 'observed_on')
         params['order'] = 'desc' if sort_order == 'desc' else 'asc'
 
-        # Make API request
-        response = requests.get(INATURALIST_API, params=params, timeout=10)
+        # Log the request for debugging
+        app.logger.info(f"API Request URL: {INATURALIST_API_V2}")
+        app.logger.info(f"Request params: {params}")
+
+        # Make API request to v2 endpoint
+        response = requests.get(INATURALIST_API_V2, params=params, timeout=10)
         response.raise_for_status()
 
         data = response.json()
+
+        # Log the response for debugging
+        app.logger.info(f"Response status: {response.status_code}")
+        app.logger.info(f"Response keys: {list(data.keys())}")
+        if 'results' in data and len(data['results']) > 0:
+            app.logger.info(f"First result keys: {list(data['results'][0].keys())}")
+
+        # v2 API returns results in the 'results' field
         observations = data.get('results', [])
         total_results = data.get('total_results', 0)
 
@@ -251,6 +265,7 @@ def search_observations():
                 # Get taxon information
                 taxon_data = obs.get('taxon', {})
                 taxon_rank = taxon_data.get('rank', 'Unknown')
+                taxon_rank_level = taxon_data.get('rank_level', '')
 
                 # Get photo URLs (thumbnail and full-size)
                 photo_url_thumbnail = get_photo_url(obs, 'square')
@@ -261,24 +276,45 @@ def search_observations():
                 observed_on_details = obs.get('observed_on_details', {})
                 formatted_date = format_observed_date(observed_on, observed_on_details)
 
+                # Get user info
+                user_data = obs.get('user', {})
+                user_login = user_data.get('login', 'Unknown')
+
+                # Get place guess (location)
+                place_guess = obs.get('place_guess', 'Unknown location')
+
+                # Get quality grade
+                quality_grade = obs.get('quality_grade', 'N/A')
+
+                # Get URI
+                uri = obs.get('uri', '')
+
+                # Get iconic taxon name
+                iconic_taxon_name = taxon_data.get('iconic_taxon_name', 'Unknown')
+
                 formatted_obs = {
                     'id': obs.get('id'),
                     'taxon_name': taxon_data.get('name', 'Unknown'),
-                    'taxon_rank': taxon_rank,
+                    'common_name': taxon_data.get('preferred_common_name', 'N/A'),
+                    'taxon_rank': f"{taxon_rank} ({taxon_rank_level})" if taxon_rank_level else taxon_rank,
                     'observed_on': observed_on,
                     'observed_on_formatted': formatted_date,
-                    'place_guess': obs.get('place_guess', 'Unknown location'),
-                    'user_login': obs.get('user', {}).get('login', 'Unknown'),
-                    'url': obs.get('uri'),
-                    'quality_grade': obs.get('quality_grade', 'N/A'),
-                    'iconic_taxon_name': taxon_data.get('iconic_taxon_name', 'Unknown'),
+                    'place_guess': place_guess,
+                    'user_login': user_login,
+                    'user_id': user_data.get('id'),
+                    'url': uri,
+                    'quality_grade': quality_grade,
+                    'iconic_taxon_name': iconic_taxon_name,
                     'photo_url': photo_url_thumbnail,
                     'photo_url_full': photo_url_full,
-                    'photos_count': len(obs.get('photos', []))
+                    'photos_count': len(obs.get('photos', [])) or len(obs.get('observation_photos', [])),
+                    'latitude': obs.get('latitude'),
+                    'longitude': obs.get('longitude'),
+                    'positional_accuracy': obs.get('positional_accuracy')
                 }
                 formatted_observations.append(formatted_obs)
             except Exception as e:
-                logging.warning(f"Error formatting observation {obs.get('id')}: {e}")
+                app.logger.warning(f"Error formatting observation {obs.get('id', 'unknown')}: {e}")
                 continue
 
         return jsonify({
@@ -309,13 +345,13 @@ def search_observations():
         })
 
     except requests.exceptions.RequestException as e:
-        logging.error(f"API Request error: {e}")
+        app.logger.error(f"API Request error: {e}")
         return jsonify({
             'success': False,
             'error': f"Error connecting to iNaturalist API: {str(e)}"
         }), 500
     except Exception as e:
-        logging.error(f"Unexpected error: {e}")
+        app.logger.error(f"Unexpected error: {e}")
         return jsonify({
             'success': False,
             'error': f"Unexpected error: {str(e)}"

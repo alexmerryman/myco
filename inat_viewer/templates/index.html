@@ -3,53 +3,162 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
     <title>iNaturalist Observations Viewer</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
     <style>
+        /* Global Styles */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             background-color: #f0f2f5;
-            padding: 20px 0;
+            padding: 10px 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
         }
+
         .container {
             max-width: 1400px;
+            padding: 0 10px;
         }
+
+        /* Header */
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 2rem;
+            padding: 1.5rem 1rem;
             border-radius: 10px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
-        .filter-card {
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        .header .lead {
+            font-size: 1rem;
+            margin-bottom: 0;
+        }
+
+        /* Cards */
+        .filter-card, .result-card {
             background: white;
             border-radius: 10px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        .result-card {
-            background: white;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+
+        /* Filter Section */
+        .filter-card h5 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
         }
+        .filter-card .form-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .filter-card .form-control,
+        .filter-card .form-select {
+            font-size: 0.9rem;
+            padding: 0.5rem 0.75rem;
+        }
+
+        /* ID Display Options */
+        .id-display-options {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        .id-display-options h6 {
+            font-size: 0.95rem;
+            margin-bottom: 0.75rem;
+        }
+        .id-display-options .form-label {
+            font-size: 0.8rem;
+        }
+
+        /* Table - Mobile Friendly */
         .table-container {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -0.5rem;
         }
-        .observation-link {
-            color: #667eea;
-            text-decoration: none;
+        .table {
+            font-size: 0.85rem;
+            margin-bottom: 0;
+            min-width: 700px;
         }
-        .observation-link:hover {
-            text-decoration: underline;
-        }
-        .badge-quality {
-            padding: 5px 10px;
-            border-radius: 20px;
+        .table th {
             font-size: 0.75rem;
+            padding: 0.5rem 0.4rem;
+            white-space: nowrap;
+            background: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .table td {
+            padding: 0.5rem 0.4rem;
+            vertical-align: middle;
+        }
+
+        /* Photo Thumbnail - Mobile Optimized */
+        .photo-thumbnail {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .photo-thumbnail:active {
+            transform: scale(0.95);
+        }
+        .no-photo {
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 8px;
+            color: #adb5bd;
+            font-size: 0.65rem;
+            border: 2px dashed #dee2e6;
+            text-align: center;
+            padding: 5px;
+        }
+        .photo-cell {
+            min-width: 80px;
+            text-align: center;
+        }
+
+        /* Taxon Display */
+        .taxon-display {
+            display: flex;
+            flex-direction: column;
+        }
+        .taxon-name {
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+        .taxon-rank {
+            font-size: 0.7rem;
+            color: #6c757d;
+        }
+
+        /* Quality Badge */
+        .badge-quality {
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            white-space: nowrap;
         }
         .badge-research {
             background-color: #28a745;
@@ -59,117 +168,102 @@
             background-color: #ffc107;
             color: black;
         }
-        .loading-spinner {
-            display: none;
-            text-align: center;
-            padding: 2rem;
+
+        /* Sortable Headers */
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
         }
-        .error-message {
-            display: none;
+        .sortable-header:active {
+            background-color: #dee2e6;
         }
-        #resultsSummary {
-            font-weight: 500;
-            color: #495057;
+        .sortable-header i {
+            margin-left: 3px;
+            font-size: 0.7rem;
         }
-        .filters-applied {
-            background: #f8f9fa;
-            padding: 10px;
-            border-radius: 5px;
-            margin-top: 10px;
-        }
-        .filter-badge {
-            background: #e9ecef;
-            padding: 5px 12px;
-            border-radius: 15px;
-            margin-right: 10px;
-            display: inline-block;
-            font-size: 0.85rem;
-        }
-        .filter-badge strong {
-            color: #495057;
-        }
+
+        /* Pagination - Mobile Friendly */
         .pagination-container {
-            margin-top: 20px;
+            margin-top: 15px;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            flex-wrap: wrap;
             gap: 10px;
         }
         .pagination-info {
             color: #6c757d;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
+            text-align: center;
         }
         .pagination-controls {
             display: flex;
             gap: 5px;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
         }
         .pagination-controls .btn {
-            min-width: 80px;
+            min-width: 60px;
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
         }
         .page-number-badge {
             background: #667eea;
             color: white;
-            padding: 5px 15px;
+            padding: 4px 12px;
             border-radius: 20px;
             font-weight: 500;
-            margin: 0 10px;
-        }
-        .btn-page {
-            transition: all 0.2s;
-        }
-        .btn-page:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        }
-        .btn-page:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .pagination-spinner {
-            display: none;
-            margin: 0 10px;
-        }
-
-        /* Enhanced Photo Thumbnail Styles */
-        .photo-thumbnail {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 10px;
-            border: 3px solid #e9ecef;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .photo-thumbnail:hover {
-            transform: scale(1.15);
-            border-color: #667eea;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-            z-index: 100;
-            position: relative;
-        }
-        .no-photo {
-            width: 100px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #f8f9fa;
-            border-radius: 10px;
-            color: #adb5bd;
             font-size: 0.85rem;
-            border: 3px dashed #dee2e6;
-            text-align: center;
-            padding: 10px;
-        }
-        .photo-cell {
-            min-width: 120px;
-            text-align: center;
+            margin: 0 5px;
         }
 
-        /* Photo Modal - Full Screen Style */
+        /* Results Summary */
+        #resultsSummary {
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.9rem;
+        }
+        .filters-applied {
+            background: #f8f9fa;
+            padding: 8px;
+            border-radius: 5px;
+            margin-top: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .filter-badge {
+            background: #e9ecef;
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .filter-badge strong {
+            color: #495057;
+        }
+
+        /* Loading States */
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem 0;
+        }
+        .loading-spinner .spinner-border {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        /* Error Message */
+        .error-message {
+            display: none;
+            font-size: 0.9rem;
+        }
+
+        /* Photo Modal - Full Screen Mobile */
         .modal-fullscreen-photo .modal-dialog {
             max-width: 98vw;
             margin: 0.5rem auto;
@@ -179,14 +273,21 @@
             height: 100%;
             background: rgba(0, 0, 0, 0.95);
             border: none;
-            border-radius: 15px;
+            border-radius: 12px;
             overflow: hidden;
         }
         .modal-fullscreen-photo .modal-header {
             border-bottom: 1px solid rgba(255,255,255,0.1);
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1rem;
             background: rgba(0,0,0,0.3);
             flex-shrink: 0;
+        }
+        .modal-fullscreen-photo .modal-header .modal-title {
+            color: white;
+            font-size: 0.9rem;
+        }
+        .modal-fullscreen-photo .modal-header .modal-title .text-muted {
+            color: rgba(255,255,255,0.6) !important;
         }
         .modal-fullscreen-photo .modal-body {
             padding: 0;
@@ -200,55 +301,56 @@
         }
         .modal-fullscreen-photo .modal-footer {
             border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 1rem 1.5rem;
+            padding: 0.75rem 1rem;
             background: rgba(0,0,0,0.3);
             flex-shrink: 0;
+            flex-wrap: wrap;
+            gap: 5px;
         }
-        .modal-fullscreen-photo .modal-title {
-            color: white;
-            font-size: 1.2rem;
-        }
-        .modal-fullscreen-photo .modal-title .text-muted {
-            color: rgba(255,255,255,0.6) !important;
+        .modal-fullscreen-photo .modal-footer .btn {
+            font-size: 0.85rem;
+            padding: 0.4rem 0.8rem;
         }
         .modal-fullscreen-photo .btn-close {
             filter: invert(1);
             opacity: 0.8;
         }
-        .modal-fullscreen-photo .btn-close:hover {
-            opacity: 1;
-        }
         .modal-fullscreen-photo .btn-secondary {
             background: rgba(255,255,255,0.15);
             border: 1px solid rgba(255,255,255,0.2);
             color: white;
-            transition: all 0.2s;
-        }
-        .modal-fullscreen-photo .btn-secondary:hover {
-            background: rgba(255,255,255,0.25);
-            border-color: rgba(255,255,255,0.3);
         }
         .modal-fullscreen-photo .btn-primary {
             background: #667eea;
             border: none;
-            transition: all 0.2s;
         }
         .modal-fullscreen-photo .btn-primary:hover {
             background: #5a6fd6;
-            transform: scale(1.05);
         }
 
-        /* Full screen photo image */
         .photo-modal-img {
             max-width: 95%;
-            max-height: 85vh;
+            max-height: 80vh;
             border-radius: 8px;
             box-shadow: 0 8px 40px rgba(0,0,0,0.6);
             object-fit: contain;
-            transition: all 0.3s ease;
         }
 
-        /* Photo info overlay on image */
+        .modal-loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        .modal-loading .spinner-border {
+            width: 3rem;
+            height: 3rem;
+        }
+        .modal-loading p {
+            color: rgba(255,255,255,0.8);
+            margin-top: 0.75rem;
+            font-size: 0.9rem;
+        }
+
         .photo-info-overlay {
             position: absolute;
             bottom: 20px;
@@ -256,9 +358,9 @@
             transform: translateX(-50%);
             background: rgba(0,0,0,0.7);
             color: white;
-            padding: 10px 20px;
-            border-radius: 30px;
-            font-size: 0.9rem;
+            padding: 8px 16px;
+            border-radius: 25px;
+            font-size: 0.8rem;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.1);
             display: none;
@@ -268,96 +370,97 @@
         .photo-info-overlay.show {
             display: block;
         }
-        .photo-info-overlay i {
-            margin-right: 8px;
-        }
 
-        /* Loading state for modal */
-        .modal-loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        .modal-loading .spinner-border {
-            width: 4rem;
-            height: 4rem;
-            border-width: 0.3rem;
-        }
-        .modal-loading p {
-            color: rgba(255,255,255,0.8);
-            margin-top: 1rem;
-            font-size: 1.1rem;
-        }
-
-        /* Keyboard shortcut hint */
         .keyboard-hint {
             color: rgba(255,255,255,0.4);
-            font-size: 0.8rem;
-            margin-left: 15px;
+            font-size: 0.7rem;
+            margin-right: 10px;
         }
 
-        .sortable-header {
-            cursor: pointer;
-            user-select: none;
-            transition: background-color 0.2s;
-        }
-        .sortable-header:hover {
-            background-color: #e9ecef;
-        }
-        .sortable-header i {
-            margin-left: 5px;
-            font-size: 0.8rem;
-        }
-        .id-display-options {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 15px;
-        }
-        .id-display-options .form-label {
-            font-weight: 500;
-            font-size: 0.9rem;
-        }
-        .id-display-options .form-control,
-        .id-display-options .form-select {
-            font-size: 0.9rem;
-        }
-
-        .taxon-display {
-            display: flex;
-            flex-direction: column;
-        }
-        .taxon-name {
-            font-weight: 600;
-            font-size: 1rem;
-        }
-        .taxon-rank {
-            font-size: 0.8rem;
-            color: #6c757d;
-        }
-
+        /* Mobile Responsive */
         @media (max-width: 768px) {
-            .pagination-container {
-                flex-direction: column;
-                align-items: stretch;
-                text-align: center;
+            body {
+                padding: 5px 0;
             }
-            .pagination-controls {
-                justify-content: center;
-                flex-wrap: wrap;
+            .container {
+                padding: 0 5px;
             }
+
+            .header {
+                padding: 1rem 0.75rem;
+                border-radius: 8px;
+            }
+            .header h1 {
+                font-size: 1.3rem;
+            }
+            .header .lead {
+                font-size: 0.85rem;
+            }
+
+            .filter-card, .result-card {
+                padding: 0.75rem;
+                border-radius: 8px;
+            }
+            .filter-card h5 {
+                font-size: 1rem;
+            }
+
             .photo-thumbnail {
-                width: 70px;
-                height: 70px;
+                width: 50px;
+                height: 50px;
+                border-radius: 6px;
             }
             .no-photo {
-                width: 70px;
-                height: 70px;
-                font-size: 0.7rem;
+                width: 50px;
+                height: 50px;
+                font-size: 0.55rem;
             }
             .photo-cell {
-                min-width: 80px;
+                min-width: 60px;
             }
+
+            .table {
+                font-size: 0.75rem;
+                min-width: 600px;
+            }
+            .table th {
+                font-size: 0.65rem;
+                padding: 0.3rem 0.25rem;
+            }
+            .table td {
+                padding: 0.3rem 0.25rem;
+            }
+
+            .taxon-name {
+                font-size: 0.75rem;
+            }
+            .taxon-rank {
+                font-size: 0.6rem;
+            }
+
+            .badge-quality {
+                font-size: 0.55rem;
+                padding: 2px 6px;
+            }
+
+            .pagination-controls .btn {
+                min-width: 50px;
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
+            .page-number-badge {
+                font-size: 0.75rem;
+                padding: 3px 10px;
+            }
+            .pagination-info {
+                font-size: 0.75rem;
+            }
+
+            .filter-badge {
+                font-size: 0.65rem;
+                padding: 2px 8px;
+            }
+
             .modal-fullscreen-photo .modal-dialog {
                 max-width: 100vw;
                 margin: 0;
@@ -366,27 +469,87 @@
             .modal-fullscreen-photo .modal-content {
                 border-radius: 0;
             }
+            .modal-fullscreen-photo .modal-header .modal-title {
+                font-size: 0.8rem;
+            }
+            .modal-fullscreen-photo .modal-footer .btn {
+                font-size: 0.75rem;
+                padding: 0.3rem 0.6rem;
+            }
             .photo-modal-img {
-                max-height: 75vh;
+                max-height: 70vh;
                 max-width: 98%;
-            }
-            .modal-fullscreen-photo .modal-title {
-                font-size: 0.9rem;
-            }
-            .photo-info-overlay {
-                font-size: 0.7rem;
-                padding: 6px 12px;
-                bottom: 10px;
             }
             .keyboard-hint {
                 display: none;
             }
+            .photo-info-overlay {
+                font-size: 0.65rem;
+                padding: 5px 12px;
+                bottom: 10px;
+                white-space: normal;
+                max-width: 90%;
+            }
         }
 
-        /* Animation for modal */
-        .modal-fullscreen-photo .modal-content {
-            animation: modalZoomIn 0.3s ease;
+        @media (max-width: 480px) {
+            .photo-thumbnail {
+                width: 40px;
+                height: 40px;
+            }
+            .no-photo {
+                width: 40px;
+                height: 40px;
+                font-size: 0.5rem;
+            }
+            .photo-cell {
+                min-width: 50px;
+            }
+            .table {
+                min-width: 500px;
+                font-size: 0.7rem;
+            }
+            .table th, .table td {
+                padding: 0.2rem 0.15rem;
+            }
+            .filter-card .form-control,
+            .filter-card .form-select {
+                font-size: 0.8rem;
+                padding: 0.35rem 0.5rem;
+            }
+            .id-display-options {
+                padding: 8px;
+            }
+            .id-display-options .form-label {
+                font-size: 0.7rem;
+            }
         }
+
+        /* Touch-friendly buttons */
+        .btn {
+            touch-action: manipulation;
+        }
+        .btn-page, .sortable-header {
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Scrollable table container */
+        .table-container::-webkit-scrollbar {
+            height: 6px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: #c1c7cd;
+            border-radius: 3px;
+        }
+        .table-container::-webkit-scrollbar-thumb:hover {
+            background: #a8aeb4;
+        }
+
+        /* Animations */
         @keyframes modalZoomIn {
             from {
                 transform: scale(0.9);
@@ -397,41 +560,48 @@
                 opacity: 1;
             }
         }
+        .modal-fullscreen-photo .modal-content {
+            animation: modalZoomIn 0.3s ease;
+        }
+
+        .btn:active {
+            transform: scale(0.96);
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header text-center">
-            <h1 class="display-4 mb-3">🌿 iNaturalist Observation Viewer</h1>
+            <h1>🌿 iNaturalist Viewer</h1>
             <p class="lead">Explore wildlife observations with powerful filtering</p>
         </div>
 
         <!-- Filter Section -->
         <div class="filter-card">
-            <h5 class="mb-3">🔍 Filter Observations</h5>
+            <h5>🔍 Filter Observations</h5>
             <form id="searchForm">
-                <div class="row">
-                    <div class="col-md-3 mb-3">
+                <div class="row g-2">
+                    <div class="col-12 col-sm-6 col-md-3">
                         <label for="username" class="form-label">Username</label>
                         <input type="text" class="form-control" id="username" placeholder="e.g., john_doe">
                     </div>
-                    <div class="col-md-3 mb-3">
-                        <label for="taxon" class="form-label">Taxon (Species/Group)</label>
-                        <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera, Quercus">
+                    <div class="col-12 col-sm-6 col-md-3">
+                        <label for="taxon" class="form-label">Taxon</label>
+                        <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera">
                     </div>
-                    <div class="col-md-2 mb-3">
+                    <div class="col-6 col-sm-3 col-md-2">
                         <label for="date_start" class="form-label">Date From</label>
                         <input type="date" class="form-control" id="date_start">
                     </div>
-                    <div class="col-md-2 mb-3">
+                    <div class="col-6 col-sm-3 col-md-2">
                         <label for="date_end" class="form-label">Date To</label>
                         <input type="date" class="form-control" id="date_end">
                     </div>
-                    <div class="col-md-2 mb-3">
+                    <div class="col-12 col-sm-6 col-md-2">
                         <label for="sortBy" class="form-label">Sort By</label>
                         <select class="form-select" id="sortBy">
-                            <option value="observed_on">Observation Date</option>
+                            <option value="observed_on">Date</option>
                             <option value="id">ID</option>
                             <option value="taxon">Taxon</option>
                             <option value="user">Observer</option>
@@ -442,44 +612,44 @@
 
                 <!-- ID Display Options -->
                 <div class="id-display-options">
-                    <h6 class="mb-2">🔢 ID Display Options</h6>
-                    <div class="row">
-                        <div class="col-md-4 mb-2">
+                    <h6>🔢 ID Display Options</h6>
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-4">
                             <label for="idDisplay" class="form-label">Display Mode</label>
                             <select class="form-select" id="idDisplay">
-                                <option value="plain">Plain (no separators)</option>
+                                <option value="plain">Plain</option>
                                 <option value="delimited" selected>With Separators</option>
                             </select>
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <label for="idDelimiter" class="form-label">Delimiter Character</label>
+                        <div class="col-6 col-sm-4">
+                            <label for="idDelimiter" class="form-label">Delimiter</label>
                             <input type="text" class="form-control" id="idDelimiter" value="-" maxlength="1" placeholder="-">
                         </div>
-                        <div class="col-md-4 mb-2">
-                            <label for="idPattern" class="form-label">Delimiter Pattern</label>
+                        <div class="col-6 col-sm-4">
+                            <label for="idPattern" class="form-label">Pattern</label>
                             <select class="form-select" id="idPattern">
-                                <option value="every3">Every 3 characters</option>
-                                <option value="every4">Every 4 characters</option>
-                                <option value="every2">Every 2 characters</option>
+                                <option value="every3">Every 3</option>
+                                <option value="every4">Every 4</option>
+                                <option value="every2">Every 2</option>
                             </select>
                         </div>
                     </div>
                 </div>
 
-                <div class="d-flex gap-2 mt-3">
-                    <button type="submit" class="btn btn-primary" id="searchBtn">
-                        <span id="searchBtnText">Search Observations</span>
+                <div class="d-flex gap-2 mt-3 flex-wrap">
+                    <button type="submit" class="btn btn-primary flex-grow-1 flex-sm-grow-0" id="searchBtn">
+                        <span id="searchBtnText">Search</span>
                         <span class="spinner-border spinner-border-sm" id="searchSpinner" style="display: none;"></span>
                     </button>
-                    <button type="reset" class="btn btn-secondary" id="resetBtn">Clear Filters</button>
+                    <button type="reset" class="btn btn-secondary flex-grow-1 flex-sm-grow-0" id="resetBtn">Clear</button>
                 </div>
             </form>
         </div>
 
         <!-- Results Section -->
         <div class="result-card">
-            <div id="resultsSummary" class="mb-3">
-                <p class="text-muted mb-0">Enter filters above and click "Search Observations" to view data.</p>
+            <div id="resultsSummary" class="mb-2">
+                <p class="text-muted mb-0" style="font-size: 0.9rem;">Enter filters above and click "Search" to view data.</p>
             </div>
 
             <!-- Loading Spinner -->
@@ -487,7 +657,7 @@
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="mt-2">Loading observations...</p>
+                <p class="mt-2" style="font-size: 0.9rem;">Loading observations...</p>
             </div>
 
             <!-- Error Message -->
@@ -500,44 +670,44 @@
                 <table class="table table-striped table-hover">
                     <thead>
                         <tr>
-                            <th class="sortable-header" data-sort="id" onclick="sortTable('id')" style="min-width: 120px;">
+                            <th class="sortable-header" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
                                 ID <i class="bi bi-arrow-down-up"></i>
                             </th>
-                            <th style="min-width: 120px;">Photo</th>
-                            <th class="sortable-header" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 180px;">
-                                Taxon (Rank) <i class="bi bi-arrow-down-up"></i>
+                            <th style="min-width: 80px;">Photo</th>
+                            <th class="sortable-header" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 140px;">
+                                Taxon <i class="bi bi-arrow-down-up"></i>
                             </th>
-                            <th class="sortable-header" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 160px;">
+                            <th class="sortable-header" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 130px;">
                                 Date/Time <i class="bi bi-arrow-down-up"></i>
                             </th>
-                            <th class="sortable-header" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 150px;">
+                            <th class="sortable-header" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 120px;">
                                 Location <i class="bi bi-arrow-down-up"></i>
                             </th>
-                            <th class="sortable-header" data-sort="user" onclick="sortTable('user')" style="min-width: 120px;">
+                            <th class="sortable-header" data-sort="user" onclick="sortTable('user')" style="min-width: 100px;">
                                 Observer <i class="bi bi-arrow-down-up"></i>
                             </th>
-                            <th style="min-width: 100px;">Quality</th>
-                            <th style="min-width: 80px;">Link</th>
+                            <th style="min-width: 80px;">Quality</th>
+                            <th style="min-width: 60px;">Link</th>
                         </tr>
                     </thead>
                     <tbody id="observationsBody">
                     </tbody>
                 </table>
-                <div id="noResults" style="display: none;" class="text-center text-muted py-4">
-                    <p>No observations found matching your filters.</p>
+                <div id="noResults" style="display: none;" class="text-center text-muted py-3">
+                    <p style="font-size: 0.9rem;">No observations found matching your filters.</p>
                 </div>
 
                 <!-- Pagination Controls -->
                 <div class="pagination-container" id="paginationContainer" style="display: none;">
                     <div class="pagination-info" id="paginationInfo">
-                        Showing <span id="pageStart">0</span> - <span id="pageEnd">0</span> of <span id="totalResults">0</span> observations
+                        Showing <span id="pageStart">0</span> - <span id="pageEnd">0</span> of <span id="totalResults">0</span>
                     </div>
                     <div class="pagination-controls">
                         <button class="btn btn-outline-primary btn-page" id="prevPage" onclick="goToPage('prev')">
-                            ← Previous
+                            ← Prev
                         </button>
                         <span class="page-number-badge">
-                            Page <span id="currentPageDisplay">1</span> of <span id="totalPagesDisplay">1</span>
+                            <span id="currentPageDisplay">1</span> / <span id="totalPagesDisplay">1</span>
                         </span>
                         <button class="btn btn-outline-primary btn-page" id="nextPage" onclick="goToPage('next')">
                             Next →
@@ -551,33 +721,31 @@
         </div>
     </div>
 
-    <!-- Photo Modal - Full Screen -->
+    <!-- Photo Modal -->
     <div class="modal fade modal-fullscreen-photo" id="photoModal" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title">
-                        <i class="bi bi-image"></i> Observation Photo
-                        <span id="modalPhotoId" class="text-muted ms-2" style="font-size: 0.9rem;"></span>
+                        <i class="bi bi-image"></i> Photo
+                        <span id="modalPhotoId" class="text-muted ms-2" style="font-size: 0.8rem;"></span>
                     </h5>
                     <div class="d-flex align-items-center">
-                        <span class="keyboard-hint">
-                            <i class="bi bi-keyboard"></i> ESC to close
-                        </span>
+                        <span class="keyboard-hint">ESC to close</span>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                 </div>
                 <div class="modal-body">
                     <div class="modal-loading" id="modalLoading">
                         <div class="spinner-border text-light" role="status">
-                            <span class="visually-hidden">Loading full-size image...</span>
+                            <span class="visually-hidden">Loading...</span>
                         </div>
-                        <p class="mt-3 text-light">Loading full-size image...</p>
+                        <p class="text-light">Loading full-size image...</p>
                     </div>
                     <img id="modalPhoto" src="" alt="Full size observation photo" class="photo-modal-img" style="display: none;">
                     <div class="photo-info-overlay" id="photoInfoOverlay">
                         <i class="bi bi-info-circle"></i>
-                        <span id="photoInfoText">Click anywhere or press ESC to close</span>
+                        <span id="photoInfoText">Tap anywhere or press ESC to close</span>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -585,7 +753,7 @@
                         <i class="bi bi-x-circle"></i> Close
                     </button>
                     <a id="modalPhotoLink" href="#" target="_blank" class="btn btn-primary">
-                        <i class="bi bi-box-arrow-up-right"></i> View on iNaturalist
+                        <i class="bi bi-box-arrow-up-right"></i> View on iNat
                     </a>
                 </div>
             </div>
@@ -616,7 +784,7 @@
 
             // Click on modal background to close
             document.getElementById('photoModal').addEventListener('click', function(e) {
-                if (e.target === this) {
+                if (e.target === this || e.target.classList.contains('modal-body')) {
                     photoModal.hide();
                 }
             });
@@ -663,7 +831,6 @@
         // Open photo modal with full-size image
         function openPhotoModal(photoUrlFull, observationId, taxonName) {
             if (!photoUrlFull) {
-                // Fallback: try to use the thumbnail if full-size not available
                 const img = event.target;
                 if (img && img.src) {
                     photoUrlFull = img.src;
@@ -672,7 +839,6 @@
                 }
             }
 
-            // Show loading state
             const modalImg = document.getElementById('modalPhoto');
             const modalLoading = document.getElementById('modalLoading');
             const modalPhotoId = document.getElementById('modalPhotoId');
@@ -683,22 +849,18 @@
             modalLoading.style.display = 'block';
             photoInfoOverlay.classList.remove('show');
 
-            // Set observation info in modal
             const displayId = formatId(observationId, idDisplayMode, idDelimiter, idPattern);
-            modalPhotoId.textContent = `#${displayId}${taxonName ? ` - ${taxonName}` : ''}`;
-            photoInfoText.textContent = `${taxonName || 'Observation'} #${displayId} • Click anywhere or press ESC to close`;
+            const displayName = taxonName ? ` - ${taxonName}` : '';
+            modalPhotoId.textContent = `#${displayId}${displayName}`;
+            photoInfoText.textContent = `${taxonName || 'Observation'} #${displayId} • Tap anywhere or press ESC to close`;
 
-            // Set the link
             document.getElementById('modalPhotoLink').href = `https://www.inaturalist.org/observations/${observationId}`;
 
-            // Preload the full-size image
             const img = new Image();
             img.onload = function() {
-                // Image loaded successfully
                 modalImg.src = photoUrlFull;
                 modalImg.style.display = 'block';
                 modalLoading.style.display = 'none';
-                // Show info overlay briefly
                 setTimeout(() => {
                     photoInfoOverlay.classList.add('show');
                     setTimeout(() => {
@@ -707,7 +869,6 @@
                 }, 500);
             };
             img.onerror = function() {
-                // If full-size fails, try the original URL without size parameters
                 let fallbackUrl = photoUrlFull;
                 if (fallbackUrl.includes('?size=')) {
                     fallbackUrl = fallbackUrl.split('?size=')[0];
@@ -715,7 +876,6 @@
                     fallbackUrl = fallbackUrl.split('&size=')[0];
                 }
 
-                // Try the fallback
                 const fallbackImg = new Image();
                 fallbackImg.onload = function() {
                     modalImg.src = fallbackUrl;
@@ -729,13 +889,12 @@
                     }, 500);
                 };
                 fallbackImg.onerror = function() {
-                    // If all fails, show error message
                     modalLoading.innerHTML = `
-                        <div class="text-danger" style="color: #ff6b6b !important;">
-                            <i class="bi bi-exclamation-triangle-fill" style="font-size: 4rem;"></i>
-                            <p class="mt-3" style="color: #ff6b6b !important;">Unable to load full-size image</p>
-                            <button class="btn btn-outline-light mt-2" onclick="location.reload()">
-                                <i class="bi bi-arrow-clockwise"></i> Try Again
+                        <div style="color: #ff6b6b !important;">
+                            <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem;"></i>
+                            <p class="mt-2" style="color: #ff6b6b !important; font-size: 0.9rem;">Unable to load image</p>
+                            <button class="btn btn-outline-light mt-2" onclick="location.reload()" style="font-size: 0.85rem;">
+                                <i class="bi bi-arrow-clockwise"></i> Retry
                             </button>
                         </div>
                     `;
@@ -744,7 +903,6 @@
             };
             img.src = photoUrlFull;
 
-            // Show the modal
             photoModal.show();
         }
 
@@ -752,7 +910,6 @@
             const searchForm = document.getElementById('searchForm');
             const resetBtn = document.getElementById('resetBtn');
 
-            // Update ID display options on change
             document.getElementById('idDisplay').addEventListener('change', function() {
                 idDisplayMode = this.value;
                 if (document.getElementById('observationsContainer').style.display !== 'none') {
@@ -774,14 +931,12 @@
                 }
             });
 
-            // Handle form submission
             searchForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 currentPage = 1;
                 performSearch();
             });
 
-            // Handle reset
             resetBtn.addEventListener('click', function() {
                 document.getElementById('username').value = '';
                 document.getElementById('taxon').value = '';
@@ -800,7 +955,6 @@
                 performSearch();
             });
 
-            // Auto-search with initial empty query to show data on load
             setTimeout(() => {
                 performSearch();
             }, 100);
@@ -873,7 +1027,7 @@
                 .then(response => response.json())
                 .then(data => {
                     searchBtn.disabled = false;
-                    searchBtnText.textContent = 'Search Observations';
+                    searchBtnText.textContent = 'Search';
                     searchSpinner.style.display = 'none';
                     loadingSpinner.style.display = 'none';
                     paginationSpinner.style.display = 'none';
@@ -887,7 +1041,7 @@
                 })
                 .catch(error => {
                     searchBtn.disabled = false;
-                    searchBtnText.textContent = 'Search Observations';
+                    searchBtnText.textContent = 'Search';
                     searchSpinner.style.display = 'none';
                     loadingSpinner.style.display = 'none';
                     paginationSpinner.style.display = 'none';
@@ -901,7 +1055,6 @@
             const totalResults = data.total_results;
             const filters = data.filters_applied;
             const pagination = data.pagination;
-            const idOptions = data.id_display_options;
 
             currentPage = pagination.current_page;
             totalPages = pagination.total_pages;
@@ -910,14 +1063,13 @@
             const end = Math.min(currentPage * pagination.per_page, totalResults);
 
             let summaryHtml = `
-                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
                     <div>
-                        <strong>${observations.length}</strong> observations displayed
-                        ${totalResults > observations.length ? `(out of ${totalResults} total)` : ''}
-                        <span class="badge bg-info ms-2">Sorted by: ${filters.sort_by} (${filters.sort_order})</span>
+                        <strong>${observations.length}</strong> shown
+                        ${totalResults > observations.length ? `(of ${totalResults})` : ''}
+                        <span class="badge bg-info ms-1" style="font-size: 0.7rem;">Sort: ${filters.sort_by}</span>
                     </div>
                     <div class="filters-applied">
-                        <small>Filters:</small>
                         <span class="filter-badge"><strong>User:</strong> ${filters.username}</span>
                         <span class="filter-badge"><strong>Taxon:</strong> ${filters.taxon}</span>
                         <span class="filter-badge"><strong>Date:</strong> ${filters.date_start} to ${filters.date_end}</span>
@@ -957,22 +1109,21 @@
 
                 let photoHtml = '';
                 if (obs.photo_url) {
-                    // Escape single quotes in taxon name for the onclick attribute
                     const taxonName = obs.taxon_name.replace(/'/g, "\\'");
                     photoHtml = `
                         <img src="${obs.photo_url}"
-                             alt="Observation photo"
+                             alt="Photo"
                              class="photo-thumbnail"
                              loading="lazy"
                              onclick="openPhotoModal('${obs.photo_url_full || obs.photo_url}', ${obs.id}, '${taxonName}')"
-                             title="Click to view full size">
+                             title="Tap to view full size">
                     `;
                 } else {
                     photoHtml = `<div class="no-photo">No Photo</div>`;
                 }
 
                 row.innerHTML = `
-                    <td><code>${formattedId}</code></td>
+                    <td><code style="font-size: 0.75rem;">${formattedId}</code></td>
                     <td class="photo-cell">${photoHtml}</td>
                     <td>
                         <div class="taxon-display">
@@ -980,11 +1131,11 @@
                             <span class="taxon-rank">${obs.taxon_rank}</span>
                         </div>
                     </td>
-                    <td>${obs.observed_on_formatted}</td>
-                    <td>${obs.place_guess}</td>
-                    <td>${obs.user_login}</td>
+                    <td style="font-size: 0.75rem;">${obs.observed_on_formatted}</td>
+                    <td style="font-size: 0.75rem;">${obs.place_guess}</td>
+                    <td style="font-size: 0.75rem;">${obs.user_login}</td>
                     <td>${qualityBadge}</td>
-                    <td><a href="${obs.url}" target="_blank" class="observation-link">View</a></td>
+                    <td><a href="${obs.url}" target="_blank" class="observation-link" style="font-size: 0.75rem;">View</a></td>
                 `;
                 observationsBody.appendChild(row);
             });
