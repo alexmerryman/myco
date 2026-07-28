@@ -20,6 +20,7 @@ PER_PAGE = 50  # Observations per page
 # Format: field1,field2,nested.field1,nested.field2
 FIELDS_TO_RETURN = [
     'id',
+    'uri',
     'observed_on',
     'observed_on_details',
     'place_guess',

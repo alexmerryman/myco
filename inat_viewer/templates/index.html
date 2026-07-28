@@ -487,8 +487,9 @@
             color: rgba(255,255,255,0.6) !important;
         }
         .modal-fullscreen-photo .modal-body {
-            padding: 0;
+            padding: 20px;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             background: rgba(0,0,0,0.9);
@@ -534,10 +535,33 @@
 
         .photo-modal-img {
             max-width: 95%;
-            max-height: 85vh;
+            max-height: 75vh;
             border-radius: 8px;
             box-shadow: 0 8px 40px rgba(0,0,0,0.6);
             object-fit: contain;
+            display: block;
+        }
+
+        /* Photo Info Overlay - Always visible below the photo */
+        .photo-info-overlay {
+            position: relative;
+            bottom: auto;
+            left: auto;
+            transform: none;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: block;
+            margin-top: 15px;
+            text-align: center;
+            max-width: 90%;
+        }
+        .photo-info-overlay i {
+            margin-right: 8px;
         }
 
         .modal-loading {
@@ -553,26 +577,6 @@
             color: rgba(255,255,255,0.8);
             margin-top: 0.75rem;
             font-size: 0.9rem;
-        }
-
-        .photo-info-overlay {
-            position: absolute;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.7);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 25px;
-            font-size: 0.8rem;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255,255,255,0.1);
-            display: none;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        .photo-info-overlay.show {
-            display: block;
         }
 
         .keyboard-hint {
@@ -698,18 +702,17 @@
                 padding: 0.3rem 0.6rem;
             }
             .photo-modal-img {
-                max-height: 70vh;
+                max-height: 65vh;
                 max-width: 98%;
             }
             .keyboard-hint {
                 display: none;
             }
             .photo-info-overlay {
-                font-size: 0.65rem;
-                padding: 5px 12px;
-                bottom: 10px;
-                white-space: normal;
-                max-width: 90%;
+                font-size: 0.7rem;
+                padding: 6px 12px;
+                margin-top: 10px;
+                max-width: 95%;
             }
 
             .checkbox-cell input[type="checkbox"] {
@@ -784,6 +787,14 @@
             .notes-cell .form-control {
                 font-size: 0.6rem;
                 min-width: 60px;
+            }
+
+            .photo-modal-img {
+                max-height: 55vh;
+            }
+            .photo-info-overlay {
+                font-size: 0.6rem;
+                padding: 4px 10px;
             }
         }
 
@@ -1063,15 +1074,6 @@
                     photoModal.hide();
                 }
             });
-
-            // Show info overlay after image loads
-            document.getElementById('modalPhoto').addEventListener('load', function() {
-                const overlay = document.getElementById('photoInfoOverlay');
-                overlay.classList.add('show');
-                setTimeout(() => {
-                    overlay.classList.remove('show');
-                }, 200);
-            });
         });
 
         // Toggle filters visibility
@@ -1121,19 +1123,27 @@
 
         // Open photo modal with full-size image
         function openPhotoModal(photoUrlFull, observationId, taxonName) {
-            if (!photoUrlFull) {
-                // Try to get the full URL from the clicked element
-                const img = event ? event.target : null;
-                if (img && img.src) {
-                    // Try to get the original by removing size parameters
-                    photoUrlFull = img.src;
-                    if (photoUrlFull.includes('?size=')) {
-                        photoUrlFull = photoUrlFull.split('?size=')[0];
-                    } else if (photoUrlFull.includes('&size=')) {
-                        photoUrlFull = photoUrlFull.split('&size=')[0];
-                    }
-                } else {
-                    return;
+            // Get the full-size URL - try to get the largest available
+            let fullUrl = photoUrlFull;
+
+            // If the URL has size parameters, remove them to get the original
+            if (fullUrl) {
+                // Remove size parameters from URL
+                if (fullUrl.includes('?size=')) {
+                    fullUrl = fullUrl.split('?size=')[0];
+                }
+                if (fullUrl.includes('&size=')) {
+                    fullUrl = fullUrl.split('&size=')[0];
+                }
+                // Some iNaturalist URLs use /square/ or /medium/ in the path
+                if (fullUrl.includes('/square/')) {
+                    fullUrl = fullUrl.replace('/square/', '/original/');
+                } else if (fullUrl.includes('/medium/')) {
+                    fullUrl = fullUrl.replace('/medium/', '/original/');
+                } else if (fullUrl.includes('/small/')) {
+                    fullUrl = fullUrl.replace('/small/', '/original/');
+                } else if (fullUrl.includes('/thumb/')) {
+                    fullUrl = fullUrl.replace('/thumb/', '/original/');
                 }
             }
 
@@ -1145,36 +1155,57 @@
 
             modalImg.style.display = 'none';
             modalLoading.style.display = 'block';
-            photoInfoOverlay.classList.remove('show');
 
             const displayId = formatId(observationId, idDisplayMode, idDelimiter, idPattern);
-            const displayName = taxonName ? ` - ${taxonName}` : '';
-            modalPhotoId.textContent = `#${displayId}${displayName}`;
-            photoInfoText.textContent = `${taxonName || 'Observation'} #${displayId} • Tap anywhere or press ESC to close`;
+            const displayName = taxonName ? ` • ${taxonName}` : '';
+            modalPhotoId.textContent = `iNat ID: ${displayId}${displayName}`;
+            photoInfoText.textContent = `${taxonName || 'Observation'} • iNat ID: ${displayId}`;
 
             document.getElementById('modalPhotoLink').href = `https://www.inaturalist.org/observations/${observationId}`;
+
+            // If no URL provided, try to get it from the clicked element
+            if (!fullUrl) {
+                const img = event ? event.target : null;
+                if (img && img.src) {
+                    fullUrl = img.src;
+                    // Remove size parameters
+                    if (fullUrl.includes('?size=')) {
+                        fullUrl = fullUrl.split('?size=')[0];
+                    }
+                    if (fullUrl.includes('&size=')) {
+                        fullUrl = fullUrl.split('&size=')[0];
+                    }
+                    if (fullUrl.includes('/square/')) {
+                        fullUrl = fullUrl.replace('/square/', '/original/');
+                    } else if (fullUrl.includes('/medium/')) {
+                        fullUrl = fullUrl.replace('/medium/', '/original/');
+                    }
+                } else {
+                    // No URL available
+                    modalLoading.innerHTML = `
+                        <div style="color: #ff6b6b !important;">
+                            <i class="bi bi-exclamation-triangle-fill" style="font-size: 3rem;"></i>
+                            <p class="mt-2" style="color: #ff6b6b !important; font-size: 0.9rem;">No image available</p>
+                        </div>
+                    `;
+                    photoModal.show();
+                    return;
+                }
+            }
 
             // Preload the full-size image
             const img = new Image();
             img.onload = function() {
-                modalImg.src = photoUrlFull;
+                modalImg.src = fullUrl;
                 modalImg.style.display = 'block';
                 modalLoading.style.display = 'none';
-                setTimeout(() => {
-                    photoInfoOverlay.classList.add('show');
-                    setTimeout(() => {
-                        photoInfoOverlay.classList.remove('show');
-                    }, 3000);
-                }, 500);
+                // The info overlay is always visible now
             };
             img.onerror = function() {
-                // Try alternative URLs
-                let fallbackUrl = photoUrlFull;
-                // Try removing size parameters
-                if (fallbackUrl.includes('?size=')) {
-                    fallbackUrl = fallbackUrl.split('?size=')[0];
-                } else if (fallbackUrl.includes('&size=')) {
-                    fallbackUrl = fallbackUrl.split('&size=')[0];
+                // Try one more fallback - if the URL has 'original' in it, try removing it
+                let fallbackUrl = fullUrl;
+                if (fallbackUrl.includes('/original/')) {
+                    fallbackUrl = fallbackUrl.replace('/original/', '/large/');
                 }
 
                 const fallbackImg = new Image();
@@ -1182,12 +1213,6 @@
                     modalImg.src = fallbackUrl;
                     modalImg.style.display = 'block';
                     modalLoading.style.display = 'none';
-                    setTimeout(() => {
-                        photoInfoOverlay.classList.add('show');
-                        setTimeout(() => {
-                            photoInfoOverlay.classList.remove('show');
-                        }, 3000);
-                    }, 500);
                 };
                 fallbackImg.onerror = function() {
                     modalLoading.innerHTML = `
@@ -1202,7 +1227,7 @@
                 };
                 fallbackImg.src = fallbackUrl;
             };
-            img.src = photoUrlFull;
+            img.src = fullUrl;
 
             photoModal.show();
         }
@@ -1621,7 +1646,7 @@
                     <td class="col-location" style="font-size: 0.75rem;">${obs.place_guess}</td>
                     <td class="col-observer" style="font-size: 0.75rem;">${obs.user_login}</td>
                     <td class="col-quality">${qualityBadge}</td>
-                    <td class="col-link"><a href="${obs.url}" target="_blank" class="observation-link" style="font-size: 0.75rem;">View</a></td>
+                    <td class="col-link"><a href="${obs.url}" target="_blank" class="observation-link" style="font-size: 0.75rem;">View <i class="bi bi-box-arrow-up-right"></i></a></td>
                     <td class="col-select checkbox-cell">
                         <input type="checkbox"
                                data-obs-id="${obs.id}"
