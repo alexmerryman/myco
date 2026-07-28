@@ -1,0 +1,764 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iNaturalist Observations Viewer</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            background-color: #f0f2f5;
+            padding: 20px 0;
+        }
+        .container {
+            max-width: 1400px;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .filter-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .result-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .table-container {
+            overflow-x: auto;
+        }
+        .observation-link {
+            color: #667eea;
+            text-decoration: none;
+        }
+        .observation-link:hover {
+            text-decoration: underline;
+        }
+        .badge-quality {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+        }
+        .badge-research {
+            background-color: #28a745;
+            color: white;
+        }
+        .badge-needs_id {
+            background-color: #ffc107;
+            color: black;
+        }
+        .loading-spinner {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+        .error-message {
+            display: none;
+        }
+        #resultsSummary {
+            font-weight: 500;
+            color: #495057;
+        }
+        .filters-applied {
+            background: #f8f9fa;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 10px;
+        }
+        .filter-badge {
+            background: #e9ecef;
+            padding: 5px 12px;
+            border-radius: 15px;
+            margin-right: 10px;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+        .filter-badge strong {
+            color: #495057;
+        }
+        .pagination-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .pagination-info {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .pagination-controls .btn {
+            min-width: 80px;
+        }
+        .page-number-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: 500;
+            margin: 0 10px;
+        }
+        .btn-page {
+            transition: all 0.2s;
+        }
+        .btn-page:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        .btn-page:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .pagination-spinner {
+            display: none;
+            margin: 0 10px;
+        }
+
+        /* Enhanced Photo Thumbnail Styles */
+        .photo-thumbnail {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 10px;
+            border: 3px solid #e9ecef;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .photo-thumbnail:hover {
+            transform: scale(1.15);
+            border-color: #667eea;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+            z-index: 100;
+            position: relative;
+        }
+        .no-photo {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f8f9fa;
+            border-radius: 10px;
+            color: #adb5bd;
+            font-size: 0.85rem;
+            border: 3px dashed #dee2e6;
+            text-align: center;
+            padding: 10px;
+        }
+        .photo-cell {
+            min-width: 120px;
+            text-align: center;
+        }
+
+        /* Photo Modal */
+        .photo-modal-img {
+            max-width: 100%;
+            max-height: 80vh;
+            border-radius: 10px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            border-bottom: none;
+        }
+        .modal-footer {
+            border-top: none;
+        }
+
+        .sortable-header {
+            cursor: pointer;
+            user-select: none;
+            transition: background-color 0.2s;
+        }
+        .sortable-header:hover {
+            background-color: #e9ecef;
+        }
+        .sortable-header i {
+            margin-left: 5px;
+            font-size: 0.8rem;
+        }
+        .id-display-options {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+        .id-display-options .form-label {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        .id-display-options .form-control,
+        .id-display-options .form-select {
+            font-size: 0.9rem;
+        }
+
+        .taxon-display {
+            display: flex;
+            flex-direction: column;
+        }
+        .taxon-name {
+            font-weight: 600;
+            font-size: 1rem;
+        }
+        .taxon-rank {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        @media (max-width: 768px) {
+            .pagination-container {
+                flex-direction: column;
+                align-items: stretch;
+                text-align: center;
+            }
+            .pagination-controls {
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            .photo-thumbnail {
+                width: 70px;
+                height: 70px;
+            }
+            .no-photo {
+                width: 70px;
+                height: 70px;
+                font-size: 0.7rem;
+            }
+            .photo-cell {
+                min-width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header text-center">
+            <h1 class="display-4 mb-3">🌿 iNaturalist Observation Viewer</h1>
+            <p class="lead">Explore wildlife observations with powerful filtering</p>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="filter-card">
+            <h5 class="mb-3">🔍 Filter Observations</h5>
+            <form id="searchForm">
+                <div class="row">
+                    <div class="col-md-3 mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" placeholder="e.g., john_doe">
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <label for="taxon" class="form-label">Taxon (Species/Group)</label>
+                        <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera, Quercus">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="date_start" class="form-label">Date From</label>
+                        <input type="date" class="form-control" id="date_start">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="date_end" class="form-label">Date To</label>
+                        <input type="date" class="form-control" id="date_end">
+                    </div>
+                    <div class="col-md-2 mb-3">
+                        <label for="sortBy" class="form-label">Sort By</label>
+                        <select class="form-select" id="sortBy">
+                            <option value="observed_on">Observation Date</option>
+                            <option value="id">ID</option>
+                            <option value="taxon">Taxon</option>
+                            <option value="user">Observer</option>
+                            <option value="place_guess">Location</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ID Display Options -->
+                <div class="id-display-options">
+                    <h6 class="mb-2">🔢 ID Display Options</h6>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <label for="idDisplay" class="form-label">Display Mode</label>
+                            <select class="form-select" id="idDisplay">
+                                <option value="plain">Plain (no separators)</option>
+                                <option value="delimited" selected>With Separators</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label for="idDelimiter" class="form-label">Delimiter Character</label>
+                            <input type="text" class="form-control" id="idDelimiter" value="-" maxlength="1" placeholder="-">
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <label for="idPattern" class="form-label">Delimiter Pattern</label>
+                            <select class="form-select" id="idPattern">
+                                <option value="every3">Every 3 characters</option>
+                                <option value="every4">Every 4 characters</option>
+                                <option value="every2">Every 2 characters</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex gap-2 mt-3">
+                    <button type="submit" class="btn btn-primary" id="searchBtn">
+                        <span id="searchBtnText">Search Observations</span>
+                        <span class="spinner-border spinner-border-sm" id="searchSpinner" style="display: none;"></span>
+                    </button>
+                    <button type="reset" class="btn btn-secondary" id="resetBtn">Clear Filters</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Results Section -->
+        <div class="result-card">
+            <div id="resultsSummary" class="mb-3">
+                <p class="text-muted mb-0">Enter filters above and click "Search Observations" to view data.</p>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div class="loading-spinner" id="loadingSpinner">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading observations...</p>
+            </div>
+
+            <!-- Error Message -->
+            <div class="alert alert-danger error-message" id="errorMessage" role="alert">
+                <strong>Error:</strong> <span id="errorText"></span>
+            </div>
+
+            <!-- Observations Table -->
+            <div class="table-container" id="observationsContainer" style="display: none;">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header" data-sort="id" onclick="sortTable('id')" style="min-width: 120px;">
+                                ID <i class="bi bi-arrow-down-up"></i>
+                            </th>
+                            <th style="min-width: 120px;">Photo</th>
+                            <th class="sortable-header" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 180px;">
+                                Taxon (Rank) <i class="bi bi-arrow-down-up"></i>
+                            </th>
+                            <th class="sortable-header" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 160px;">
+                                Date/Time <i class="bi bi-arrow-down-up"></i>
+                            </th>
+                            <th class="sortable-header" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 150px;">
+                                Location <i class="bi bi-arrow-down-up"></i>
+                            </th>
+                            <th class="sortable-header" data-sort="user" onclick="sortTable('user')" style="min-width: 120px;">
+                                Observer <i class="bi bi-arrow-down-up"></i>
+                            </th>
+                            <th style="min-width: 100px;">Quality</th>
+                            <th style="min-width: 80px;">Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="observationsBody">
+                    </tbody>
+                </table>
+                <div id="noResults" style="display: none;" class="text-center text-muted py-4">
+                    <p>No observations found matching your filters.</p>
+                </div>
+
+                <!-- Pagination Controls -->
+                <div class="pagination-container" id="paginationContainer" style="display: none;">
+                    <div class="pagination-info" id="paginationInfo">
+                        Showing <span id="pageStart">0</span> - <span id="pageEnd">0</span> of <span id="totalResults">0</span> observations
+                    </div>
+                    <div class="pagination-controls">
+                        <button class="btn btn-outline-primary btn-page" id="prevPage" onclick="goToPage('prev')">
+                            ← Previous
+                        </button>
+                        <span class="page-number-badge">
+                            Page <span id="currentPageDisplay">1</span> of <span id="totalPagesDisplay">1</span>
+                        </span>
+                        <button class="btn btn-outline-primary btn-page" id="nextPage" onclick="goToPage('next')">
+                            Next →
+                        </button>
+                        <span class="pagination-spinner" id="paginationSpinner">
+                            <span class="spinner-border spinner-border-sm text-primary" role="status"></span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Photo Modal -->
+    <div class="modal fade" id="photoModal" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Observation Photo</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body text-center">
+                    <img id="modalPhoto" src="" alt="Observation photo" class="photo-modal-img">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <a id="modalPhotoLink" href="#" target="_blank" class="btn btn-primary">View on iNaturalist</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // State management
+        let currentPage = 1;
+        let totalPages = 1;
+        let currentFilters = {};
+        let currentSort = 'observed_on';
+        let currentSortOrder = 'desc';
+        let isPaginating = false;
+        let idDisplayMode = 'delimited';
+        let idDelimiter = '-';
+        let idPattern = 'every3';
+        let photoModal = null;
+
+        // Initialize photo modal
+        document.addEventListener('DOMContentLoaded', function() {
+            photoModal = new bootstrap.Modal(document.getElementById('photoModal'));
+        });
+
+        // Format ID with delimiters
+        function formatId(id, displayMode, delimiter, pattern) {
+            if (displayMode === 'plain' || !id) {
+                return id;
+            }
+
+            const idStr = String(id);
+            let parts = [];
+
+            if (pattern === 'every3') {
+                for (let i = idStr.length; i > 0; i -= 3) {
+                    parts.push(idStr.substring(Math.max(0, i - 3), i));
+                }
+                parts.reverse();
+            } else if (pattern === 'every4') {
+                for (let i = idStr.length; i > 0; i -= 4) {
+                    parts.push(idStr.substring(Math.max(0, i - 4), i));
+                }
+                parts.reverse();
+            } else if (pattern === 'every2') {
+                for (let i = idStr.length; i > 0; i -= 2) {
+                    parts.push(idStr.substring(Math.max(0, i - 2), i));
+                }
+                parts.reverse();
+            }
+
+            return parts.join(delimiter);
+        }
+
+        // Open photo in modal
+        function openPhotoModal(photoUrl, observationId) {
+            if (!photoUrl) return;
+
+            document.getElementById('modalPhoto').src = photoUrl;
+            document.getElementById('modalPhotoLink').href = `https://www.inaturalist.org/observations/${observationId}`;
+            photoModal.show();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchForm = document.getElementById('searchForm');
+            const resetBtn = document.getElementById('resetBtn');
+
+            // Update ID display options on change
+            document.getElementById('idDisplay').addEventListener('change', function() {
+                idDisplayMode = this.value;
+                if (document.getElementById('observationsContainer').style.display !== 'none') {
+                    performSearch(currentPage);
+                }
+            });
+
+            document.getElementById('idDelimiter').addEventListener('input', function() {
+                idDelimiter = this.value || '-';
+                if (document.getElementById('observationsContainer').style.display !== 'none') {
+                    performSearch(currentPage);
+                }
+            });
+
+            document.getElementById('idPattern').addEventListener('change', function() {
+                idPattern = this.value;
+                if (document.getElementById('observationsContainer').style.display !== 'none') {
+                    performSearch(currentPage);
+                }
+            });
+
+            // Handle form submission
+            searchForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                currentPage = 1;
+                performSearch();
+            });
+
+            // Handle reset
+            resetBtn.addEventListener('click', function() {
+                document.getElementById('username').value = '';
+                document.getElementById('taxon').value = '';
+                document.getElementById('date_start').value = '';
+                document.getElementById('date_end').value = '';
+                document.getElementById('sortBy').value = 'observed_on';
+                document.getElementById('idDisplay').value = 'delimited';
+                document.getElementById('idDelimiter').value = '-';
+                document.getElementById('idPattern').value = 'every3';
+                idDisplayMode = 'delimited';
+                idDelimiter = '-';
+                idPattern = 'every3';
+                currentSort = 'observed_on';
+                currentSortOrder = 'desc';
+                currentPage = 1;
+                performSearch();
+            });
+
+            // Auto-search with initial empty query to show data on load
+            setTimeout(() => {
+                performSearch();
+            }, 100);
+        });
+
+        function sortTable(sortField) {
+            if (currentSort === sortField) {
+                currentSortOrder = currentSortOrder === 'desc' ? 'asc' : 'desc';
+            } else {
+                currentSort = sortField;
+                currentSortOrder = 'desc';
+            }
+
+            document.getElementById('sortBy').value = sortField;
+            performSearch(currentPage);
+        }
+
+        function performSearch(page = null) {
+            if (page !== null) {
+                currentPage = page;
+            }
+
+            const username = document.getElementById('username').value.trim();
+            const taxon = document.getElementById('taxon').value.trim();
+            const dateStart = document.getElementById('date_start').value.trim();
+            const dateEnd = document.getElementById('date_end').value.trim();
+            const sortBy = document.getElementById('sortBy').value;
+
+            idDisplayMode = document.getElementById('idDisplay').value;
+            idDelimiter = document.getElementById('idDelimiter').value || '-';
+            idPattern = document.getElementById('idPattern').value;
+
+            currentFilters = { username, taxon, dateStart, dateEnd, sortBy };
+            currentSort = sortBy;
+
+            const params = new URLSearchParams();
+            if (username) params.append('username', username);
+            if (taxon) params.append('taxon', taxon);
+            if (dateStart) params.append('date_start', dateStart);
+            if (dateEnd) params.append('date_end', dateEnd);
+            params.append('page', currentPage);
+            params.append('sort_by', sortBy);
+            params.append('sort_order', currentSortOrder);
+            params.append('id_display', idDisplayMode);
+            params.append('id_delimiter', idDelimiter);
+            params.append('id_pattern', idPattern);
+
+            const searchBtn = document.getElementById('searchBtn');
+            const searchBtnText = document.getElementById('searchBtnText');
+            const searchSpinner = document.getElementById('searchSpinner');
+            const loadingSpinner = document.getElementById('loadingSpinner');
+            const observationsContainer = document.getElementById('observationsContainer');
+            const errorMessage = document.getElementById('errorMessage');
+            const resultsSummary = document.getElementById('resultsSummary');
+            const paginationSpinner = document.getElementById('paginationSpinner');
+
+            if (isPaginating) {
+                paginationSpinner.style.display = 'inline-block';
+            } else {
+                searchBtn.disabled = true;
+                searchBtnText.textContent = 'Searching...';
+                searchSpinner.style.display = 'inline-block';
+                loadingSpinner.style.display = 'block';
+                observationsContainer.style.display = 'none';
+                errorMessage.style.display = 'none';
+                resultsSummary.innerHTML = '';
+            }
+
+            fetch(`/search?${params.toString()}`)
+                .then(response => response.json())
+                .then(data => {
+                    searchBtn.disabled = false;
+                    searchBtnText.textContent = 'Search Observations';
+                    searchSpinner.style.display = 'none';
+                    loadingSpinner.style.display = 'none';
+                    paginationSpinner.style.display = 'none';
+                    isPaginating = false;
+
+                    if (data.success) {
+                        displayResults(data);
+                    } else {
+                        showError(data.error || 'An error occurred while fetching data.');
+                    }
+                })
+                .catch(error => {
+                    searchBtn.disabled = false;
+                    searchBtnText.textContent = 'Search Observations';
+                    searchSpinner.style.display = 'none';
+                    loadingSpinner.style.display = 'none';
+                    paginationSpinner.style.display = 'none';
+                    isPaginating = false;
+                    showError('Network error: ' + error.message);
+                });
+        }
+
+        function displayResults(data) {
+            const observations = data.observations;
+            const totalResults = data.total_results;
+            const filters = data.filters_applied;
+            const pagination = data.pagination;
+            const idOptions = data.id_display_options;
+
+            currentPage = pagination.current_page;
+            totalPages = pagination.total_pages;
+
+            const start = ((currentPage - 1) * pagination.per_page) + 1;
+            const end = Math.min(currentPage * pagination.per_page, totalResults);
+
+            let summaryHtml = `
+                <div class="d-flex justify-content-between align-items-center flex-wrap">
+                    <div>
+                        <strong>${observations.length}</strong> observations displayed
+                        ${totalResults > observations.length ? `(out of ${totalResults} total)` : ''}
+                        <span class="badge bg-info ms-2">Sorted by: ${filters.sort_by} (${filters.sort_order})</span>
+                    </div>
+                    <div class="filters-applied">
+                        <small>Filters:</small>
+                        <span class="filter-badge"><strong>User:</strong> ${filters.username}</span>
+                        <span class="filter-badge"><strong>Taxon:</strong> ${filters.taxon}</span>
+                        <span class="filter-badge"><strong>Date:</strong> ${filters.date_start} to ${filters.date_end}</span>
+                    </div>
+                </div>
+            `;
+            document.getElementById('resultsSummary').innerHTML = summaryHtml;
+
+            const observationsContainer = document.getElementById('observationsContainer');
+            observationsContainer.style.display = 'block';
+
+            const observationsBody = document.getElementById('observationsBody');
+            observationsBody.innerHTML = '';
+            const noResults = document.getElementById('noResults');
+
+            if (observations.length === 0) {
+                noResults.style.display = 'block';
+                document.getElementById('paginationContainer').style.display = 'none';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            observations.forEach(obs => {
+                const row = document.createElement('tr');
+
+                let qualityBadge = '';
+                if (obs.quality_grade === 'research') {
+                    qualityBadge = '<span class="badge-quality badge-research">Research</span>';
+                } else if (obs.quality_grade === 'needs_id') {
+                    qualityBadge = '<span class="badge-quality badge-needs_id">Needs ID</span>';
+                } else {
+                    qualityBadge = `<span class="badge-quality" style="background:#6c757d;color:white;">${obs.quality_grade}</span>`;
+                }
+
+                const formattedId = formatId(obs.id, idDisplayMode, idDelimiter, idPattern);
+
+                let photoHtml = '';
+                if (obs.photo_url) {
+                    photoHtml = `
+                        <img src="${obs.photo_url}"
+                             alt="Observation photo"
+                             class="photo-thumbnail"
+                             loading="lazy"
+                             onclick="openPhotoModal('${obs.photo_url}', ${obs.id})"
+                             title="Click to enlarge">
+                    `;
+                } else {
+                    photoHtml = `<div class="no-photo">No Photo</div>`;
+                }
+
+                row.innerHTML = `
+                    <td><code>${formattedId}</code></td>
+                    <td class="photo-cell">${photoHtml}</td>
+                    <td>
+                        <div class="taxon-display">
+                            <span class="taxon-name"><em>${obs.taxon_name}</em></span>
+                            <span class="taxon-rank">${obs.taxon_rank}</span>
+                        </div>
+                    </td>
+                    <td>${obs.observed_on_formatted}</td>
+                    <td>${obs.place_guess}</td>
+                    <td>${obs.user_login}</td>
+                    <td>${qualityBadge}</td>
+                    <td><a href="${obs.url}" target="_blank" class="observation-link">View</a></td>
+                `;
+                observationsBody.appendChild(row);
+            });
+
+            document.getElementById('pageStart').textContent = totalResults > 0 ? start : 0;
+            document.getElementById('pageEnd').textContent = totalResults > 0 ? end : 0;
+            document.getElementById('totalResults').textContent = totalResults;
+            document.getElementById('currentPageDisplay').textContent = currentPage;
+            document.getElementById('totalPagesDisplay').textContent = totalPages || 1;
+
+            document.getElementById('prevPage').disabled = !pagination.has_prev;
+            document.getElementById('nextPage').disabled = !pagination.has_next;
+
+            document.getElementById('paginationContainer').style.display = 'flex';
+
+            document.querySelectorAll('.sortable-header i').forEach(icon => {
+                icon.className = 'bi bi-arrow-down-up';
+            });
+            const activeSortHeader = document.querySelector(`[data-sort="${currentSort}"] i`);
+            if (activeSortHeader) {
+                activeSortHeader.className = currentSortOrder === 'desc' ? 'bi bi-arrow-down' : 'bi bi-arrow-up';
+            }
+        }
+
+        function goToPage(direction) {
+            if (isPaginating) return;
+
+            let newPage = currentPage;
+            if (direction === 'prev' && currentPage > 1) {
+                newPage = currentPage - 1;
+            } else if (direction === 'next' && currentPage < totalPages) {
+                newPage = currentPage + 1;
+            } else {
+                return;
+            }
+
+            isPaginating = true;
+            performSearch(newPage);
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorMessage.style.display = 'block';
+            errorText.textContent = message;
+            document.getElementById('observationsContainer').style.display = 'none';
+            document.getElementById('resultsSummary').innerHTML = '';
+        }
+    </script>
+</body>
+</html>
