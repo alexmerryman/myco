@@ -132,6 +132,32 @@
             padding: 0.5rem 0.75rem;
         }
 
+        /* Mobile Mode Toggle */
+        .mobile-mode-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 5px 0;
+            font-size: 0.85rem;
+            color: #495057;
+        }
+        .mobile-mode-toggle .form-switch {
+            padding-left: 2.5em;
+        }
+        .mobile-mode-toggle .form-switch .form-check-input {
+            width: 2em;
+            height: 1em;
+            cursor: pointer;
+        }
+        .mobile-mode-toggle .form-switch .form-check-input:checked {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        .mobile-mode-toggle .form-check-label {
+            cursor: pointer;
+            font-weight: 500;
+        }
+
         /* Table Container - No max-height, scrollable body only */
         .table-wrapper {
             position: relative;
@@ -236,6 +262,22 @@
             white-space: nowrap;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
+
+        /* Mobile mode - hide columns */
+        .mobile-mode .col-date,
+        .mobile-mode .col-location,
+        .mobile-mode .col-observer,
+        .mobile-mode .col-quality,
+        .mobile-mode .col-link,
+        .mobile-mode .col-select,
+        .mobile-mode .col-notes {
+            display: none;
+        }
+
+        /* In mobile mode, make ID, Photo, and Taxon take more width */
+        .mobile-mode .col-id { width: 100px; min-width: 100px; }
+        .mobile-mode .col-photo { width: 100px; min-width: 100px; }
+        .mobile-mode .col-taxon { width: auto; min-width: 150px; }
 
         /* Single Table */
         .table-scroll {
@@ -773,6 +815,17 @@
                 font-size: 0.8rem;
                 padding: 0.35rem 0.5rem;
             }
+
+            .mobile-mode-toggle {
+                font-size: 0.8rem;
+            }
+            .mobile-mode-toggle .form-switch {
+                padding-left: 2em;
+            }
+            .mobile-mode-toggle .form-switch .form-check-input {
+                width: 1.8em;
+                height: 0.9em;
+            }
         }
 
         @media (max-width: 480px) {
@@ -853,6 +906,17 @@
 
             .table-scroll-body {
                 max-height: 300px;
+            }
+
+            .mobile-mode-toggle {
+                font-size: 0.7rem;
+            }
+            .mobile-mode-toggle .form-switch {
+                padding-left: 1.8em;
+            }
+            .mobile-mode-toggle .form-switch .form-check-input {
+                width: 1.5em;
+                height: 0.8em;
             }
         }
 
@@ -998,6 +1062,18 @@
 
             <!-- Observations Table with Sticky Header and Controls -->
             <div id="observationsContainer" style="display: none;">
+                <!-- Mobile Mode Toggle -->
+                <div class="mobile-mode-toggle">
+                    <span>📱 Mobile Mode</span>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="mobileModeToggle" onchange="toggleMobileMode()">
+                        <label class="form-check-label" for="mobileModeToggle">
+                            <span id="mobileModeLabel">Off</span>
+                        </label>
+                    </div>
+                    <small class="text-muted ms-2">(Show only ID, Photo, Taxon)</small>
+                </div>
+
                 <div class="table-wrapper">
                     <!-- Sticky Header Container - Selection controls directly above header -->
                     <div class="sticky-header-container">
@@ -1016,8 +1092,8 @@
                         </div>
 
                         <!-- Scrollable Table Body -->
-                        <div class="table-scroll-body">
-                            <table class="table-scroll">
+                        <div class="table-scroll-body" id="tableScrollBody">
+                            <table class="table-scroll" id="mainTable">
                                 <thead>
                                     <tr>
                                         <th class="sortable-header col-id" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
@@ -1133,6 +1209,7 @@
         let observationNotes = {};
         let filtersVisible = true;
         let idDisplayVisible = true;
+        let mobileMode = false;
 
         // Initialize photo modal
         document.addEventListener('DOMContentLoaded', function() {
@@ -1179,6 +1256,33 @@
                 content.classList.remove('hidden');
                 icon.className = 'bi bi-chevron-up';
                 idDisplayVisible = true;
+            }
+        }
+
+        // Toggle mobile mode
+        function toggleMobileMode() {
+            const toggle = document.getElementById('mobileModeToggle');
+            const label = document.getElementById('mobileModeLabel');
+            const table = document.getElementById('mainTable');
+            const tableWrapper = document.getElementById('tableScrollBody');
+
+            mobileMode = toggle.checked;
+            label.textContent = mobileMode ? 'On' : 'Off';
+
+            if (mobileMode) {
+                table.classList.add('mobile-mode');
+                // Make taxon column wider in mobile mode
+                document.querySelectorAll('.col-taxon').forEach(el => {
+                    el.style.width = 'auto';
+                    el.style.minWidth = '150px';
+                });
+            } else {
+                table.classList.remove('mobile-mode');
+                // Reset taxon column width
+                document.querySelectorAll('.col-taxon').forEach(el => {
+                    el.style.width = '';
+                    el.style.minWidth = '';
+                });
             }
         }
 
