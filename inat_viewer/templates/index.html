@@ -81,18 +81,100 @@
             font-size: 0.8rem;
         }
 
-        /* Table - Mobile Friendly */
-        .table-container {
+        /* Table Container with Sticky Header and Controls */
+        .table-wrapper {
+            position: relative;
+            max-height: 600px;
+            overflow-y: auto;
             overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
             margin: 0 -0.5rem;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
         }
+
+        .table-wrapper::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        .table-wrapper::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        .table-wrapper::-webkit-scrollbar-thumb {
+            background: #c1c7cd;
+            border-radius: 4px;
+        }
+        .table-wrapper::-webkit-scrollbar-thumb:hover {
+            background: #a8aeb4;
+        }
+
+        /* Sticky Header Container */
+        .sticky-header-container {
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            background: white;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        /* Selection Controls - Always Visible */
+        .selection-controls {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 8px 12px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .selection-controls .btn {
+            font-size: 0.85rem;
+            padding: 0.25rem 0.75rem;
+        }
+        .selection-count {
+            font-size: 0.9rem;
+            color: #495057;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+        .selection-controls .btn-success {
+            background-color: #28a745;
+            border-color: #28a745;
+        }
+        .selection-controls .btn-success:hover {
+            background-color: #218838;
+            border-color: #1e7e34;
+        }
+        .selection-controls .btn-secondary {
+            background-color: #6c757d;
+            border-color: #6c757d;
+        }
+        .selection-controls .btn-secondary:hover {
+            background-color: #5a6268;
+            border-color: #545b62;
+        }
+        .selection-controls .btn-primary {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        .selection-controls .btn-primary:hover {
+            background-color: #5a6fd6;
+            border-color: #4a5fc4;
+        }
+        .selection-controls .btn-success:disabled,
+        .selection-controls .btn-secondary:disabled,
+        .selection-controls .btn-primary:disabled {
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
+        /* Table */
         .table {
             font-size: 0.85rem;
             margin-bottom: 0;
             min-width: 750px;
         }
-        .table th {
+        .table thead th {
             font-size: 0.75rem;
             padding: 0.5rem 0.4rem;
             white-space: nowrap;
@@ -100,6 +182,7 @@
             position: sticky;
             top: 0;
             z-index: 10;
+            border-bottom: 2px solid #dee2e6;
         }
         .table td {
             padding: 0.5rem 0.4rem;
@@ -127,26 +210,6 @@
         }
         .table tr.selected td {
             border-left: 3px solid #667eea;
-        }
-
-        /* Selection controls */
-        .selection-controls {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            flex-wrap: wrap;
-            padding: 10px 0;
-            border-top: 1px solid #e9ecef;
-            margin-top: 10px;
-        }
-        .selection-controls .btn {
-            font-size: 0.85rem;
-            padding: 0.3rem 0.8rem;
-        }
-        .selection-count {
-            font-size: 0.9rem;
-            color: #495057;
-            font-weight: 500;
         }
 
         /* Photo Thumbnail - Mobile Optimized */
@@ -233,6 +296,7 @@
             flex-direction: column;
             align-items: center;
             gap: 10px;
+            padding: 10px 0;
         }
         .pagination-info {
             color: #6c757d;
@@ -266,6 +330,7 @@
             font-weight: 500;
             color: #495057;
             font-size: 0.9rem;
+            padding: 0 0 10px 0;
         }
         .filters-applied {
             background: #f8f9fa;
@@ -466,7 +531,7 @@
                 font-size: 0.75rem;
                 min-width: 650px;
             }
-            .table th {
+            .table thead th {
                 font-size: 0.65rem;
                 padding: 0.3rem 0.25rem;
             }
@@ -538,6 +603,18 @@
                 width: 16px;
                 height: 16px;
             }
+
+            .selection-controls {
+                padding: 6px 8px;
+                gap: 6px;
+            }
+            .selection-controls .btn {
+                font-size: 0.75rem;
+                padding: 0.2rem 0.5rem;
+            }
+            .selection-count {
+                font-size: 0.8rem;
+            }
         }
 
         @media (max-width: 480px) {
@@ -557,7 +634,7 @@
                 min-width: 550px;
                 font-size: 0.7rem;
             }
-            .table th, .table td {
+            .table thead th, .table td {
                 padding: 0.2rem 0.15rem;
             }
             .filter-card .form-control,
@@ -583,22 +660,6 @@
         }
         .btn-page, .sortable-header {
             -webkit-tap-highlight-color: transparent;
-        }
-
-        /* Scrollable table container */
-        .table-container::-webkit-scrollbar {
-            height: 6px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background: #c1c7cd;
-            border-radius: 3px;
-        }
-        .table-container::-webkit-scrollbar-thumb:hover {
-            background: #a8aeb4;
         }
 
         /* Animations */
@@ -717,51 +778,60 @@
                 <strong>Error:</strong> <span id="errorText"></span>
             </div>
 
-            <!-- Observations Table -->
-            <div class="table-container" id="observationsContainer" style="display: none;">
+            <!-- Observations Table with Sticky Header and Controls -->
+            <div class="table-wrapper" id="observationsContainer" style="display: none;">
+                <!-- Sticky Header Container -->
+                <div class="sticky-header-container">
+                    <!-- Selection Controls - Always Visible -->
+                    <div class="selection-controls" id="selectionControls">
+                        <span class="selection-count" id="selectionCount">0 observation(s) selected</span>
+                        <button class="btn btn-success btn-sm" onclick="selectAll()">
+                            <i class="bi bi-check-all"></i> Select All
+                        </button>
+                        <button class="btn btn-secondary btn-sm" onclick="deselectAll()">
+                            <i class="bi bi-x-circle"></i> Deselect All
+                        </button>
+                        <button class="btn btn-primary btn-sm" onclick="exportSelectedCSV()" id="exportBtn">
+                            <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
+                        </button>
+                    </div>
+
+                    <!-- Table Header -->
+                    <table class="table table-striped table-hover">
+                        <thead>
+                            <tr>
+                                <th class="sortable-header" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
+                                    ID <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th style="min-width: 80px;">Photo</th>
+                                <th class="sortable-header" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 140px;">
+                                    Taxon <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th class="sortable-header" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 130px;">
+                                    Date/Time <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th class="sortable-header" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 120px;">
+                                    Location <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th class="sortable-header" data-sort="user" onclick="sortTable('user')" style="min-width: 100px;">
+                                    Observer <i class="bi bi-arrow-down-up"></i>
+                                </th>
+                                <th style="min-width: 80px;">Quality</th>
+                                <th style="min-width: 60px;">Link</th>
+                                <th style="min-width: 50px;" class="text-center">Select</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <!-- Table Body -->
                 <table class="table table-striped table-hover">
-                    <thead>
-                        <tr>
-                            <th class="sortable-header" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
-                                ID <i class="bi bi-arrow-down-up"></i>
-                            </th>
-                            <th style="min-width: 80px;">Photo</th>
-                            <th class="sortable-header" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 140px;">
-                                Taxon <i class="bi bi-arrow-down-up"></i>
-                            </th>
-                            <th class="sortable-header" data-sort="observed_on" onclick="sortTable('observed_on')" style="min-width: 130px;">
-                                Date/Time <i class="bi bi-arrow-down-up"></i>
-                            </th>
-                            <th class="sortable-header" data-sort="place_guess" onclick="sortTable('place_guess')" style="min-width: 120px;">
-                                Location <i class="bi bi-arrow-down-up"></i>
-                            </th>
-                            <th class="sortable-header" data-sort="user" onclick="sortTable('user')" style="min-width: 100px;">
-                                Observer <i class="bi bi-arrow-down-up"></i>
-                            </th>
-                            <th style="min-width: 80px;">Quality</th>
-                            <th style="min-width: 60px;">Link</th>
-                            <th style="min-width: 50px;" class="text-center">Select</th>
-                        </tr>
-                    </thead>
                     <tbody id="observationsBody">
                     </tbody>
                 </table>
+
                 <div id="noResults" style="display: none;" class="text-center text-muted py-3">
                     <p style="font-size: 0.9rem;">No observations found matching your filters.</p>
-                </div>
-
-                <!-- Selection Controls -->
-                <div class="selection-controls" id="selectionControls" style="display: none;">
-                    <span class="selection-count" id="selectionCount">0 observations selected</span>
-                    <button class="btn btn-outline-success btn-sm" onclick="selectAll()">
-                        <i class="bi bi-check-all"></i> Select All
-                    </button>
-                    <button class="btn btn-outline-secondary btn-sm" onclick="deselectAll()">
-                        <i class="bi bi-x-circle"></i> Deselect All
-                    </button>
-                    <button class="btn btn-primary btn-sm" onclick="exportSelectedCSV()">
-                        <i class="bi bi-file-earmark-spreadsheet"></i> Export CSV
-                    </button>
                 </div>
 
                 <!-- Pagination Controls -->
@@ -1065,8 +1135,6 @@
                         const url = cells[7]?.querySelector('a')?.href || '';
 
                         // Get common name from the taxon cell if available
-                        // We need to get it from the data attribute or parse it
-                        // For now, we'll use a placeholder
                         const commonName = '';
 
                         rows.push([id, taxonName, taxonRank, commonName, date, location, observer, quality, url]);
@@ -1115,15 +1183,14 @@
         }
 
         function updateSelectionControls() {
-            const controls = document.getElementById('selectionControls');
             const count = document.getElementById('selectionCount');
+            const exportBtn = document.getElementById('exportBtn');
 
-            if (selectedObservations.size > 0) {
-                controls.style.display = 'flex';
-                count.textContent = `${selectedObservations.size} observation(s) selected`;
-            } else {
-                controls.style.display = 'none';
-            }
+            // Update count
+            count.textContent = `${selectedObservations.size} observation(s) selected`;
+
+            // Enable/disable export button based on selection
+            exportBtn.disabled = selectedObservations.size === 0;
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1244,7 +1311,6 @@
                 observationsContainer.style.display = 'none';
                 errorMessage.style.display = 'none';
                 resultsSummary.innerHTML = '';
-                document.getElementById('selectionControls').style.display = 'none';
             }
 
             fetch(`/search?${params.toString()}`)
@@ -1312,7 +1378,6 @@
             if (observations.length === 0) {
                 noResults.style.display = 'block';
                 document.getElementById('paginationContainer').style.display = 'none';
-                document.getElementById('selectionControls').style.display = 'none';
                 return;
             }
 
@@ -1428,7 +1493,6 @@
             errorText.textContent = message;
             document.getElementById('observationsContainer').style.display = 'none';
             document.getElementById('resultsSummary').innerHTML = '';
-            document.getElementById('selectionControls').style.display = 'none';
         }
     </script>
 </body>
