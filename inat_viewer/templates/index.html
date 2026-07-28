@@ -90,37 +90,62 @@
             padding: 0.5rem 0.75rem;
         }
 
-        /* ID Display Options - Separate Card */
-        .id-display-card .id-display-header {
+        /* Clear button for form inputs */
+        .input-with-clear {
+            position: relative;
+        }
+        .input-with-clear .form-control {
+            padding-right: 2.2rem;
+        }
+        .input-with-clear .clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #adb5bd;
+            cursor: pointer;
+            padding: 0 4px;
+            font-size: 1rem;
+            transition: color 0.2s;
+            display: none;
+        }
+        .input-with-clear .clear-btn:hover {
+            color: #dc3545;
+        }
+        .input-with-clear .clear-btn.visible {
+            display: block;
+        }
+
+        /* ID Display Options - Same size as filter header */
+        .id-display-card h5 {
+            font-size: 1.1rem;
+            margin-bottom: 0;
             cursor: pointer;
             user-select: none;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 0;
         }
-        .id-display-card .id-display-header:hover {
+        .id-display-card h5:hover {
             color: #667eea;
         }
-        .id-display-card .id-display-header i {
+        .id-display-card h5 i {
             transition: transform 0.3s ease;
-            font-size: 1rem;
+            font-size: 1.2rem;
         }
-        .id-display-card .id-display-header i.collapsed {
+        .id-display-card h5 i.collapsed {
             transform: rotate(-90deg);
         }
-        .id-display-card .id-display-content {
+        .id-display-content {
             overflow: hidden;
             transition: max-height 0.3s ease;
             max-height: 500px;
         }
-        .id-display-card .id-display-content.hidden {
+        .id-display-content.hidden {
             max-height: 0;
             padding-top: 0;
-        }
-        .id-display-card h6 {
-            font-size: 0.95rem;
-            margin-bottom: 0;
         }
         .id-display-card .form-label {
             font-size: 0.8rem;
@@ -267,7 +292,6 @@
         .mobile-mode .col-date,
         .mobile-mode .col-location,
         .mobile-mode .col-observer,
-        .mobile-mode .col-quality,
         .mobile-mode .col-link,
         .mobile-mode .col-select,
         .mobile-mode .col-notes {
@@ -314,7 +338,6 @@
         .col-date { width: 130px; min-width: 130px; }
         .col-location { width: 120px; min-width: 120px; }
         .col-observer { width: 100px; min-width: 100px; }
-        .col-quality { width: 90px; min-width: 90px; }
         .col-link { width: 60px; min-width: 60px; }
         .col-select { width: 50px; min-width: 50px; text-align: center; }
         .col-notes { width: 180px; min-width: 160px; }
@@ -684,7 +707,7 @@
                 padding: 0.75rem;
                 border-radius: 8px;
             }
-            .filter-card h5 {
+            .filter-card h5, .id-display-card h5 {
                 font-size: 1rem;
             }
 
@@ -705,7 +728,6 @@
             .col-date { width: 110px; min-width: 110px; }
             .col-location { width: 100px; min-width: 100px; }
             .col-observer { width: 80px; min-width: 80px; }
-            .col-quality { width: 75px; min-width: 75px; }
             .col-link { width: 50px; min-width: 50px; }
             .col-select { width: 40px; min-width: 40px; }
             .col-notes { width: 140px; min-width: 120px; }
@@ -826,6 +848,11 @@
                 width: 1.8em;
                 height: 0.9em;
             }
+
+            .input-with-clear .clear-btn {
+                font-size: 0.85rem;
+                right: 6px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -845,7 +872,6 @@
             .col-date { width: 90px; min-width: 90px; }
             .col-location { width: 80px; min-width: 80px; }
             .col-observer { width: 70px; min-width: 70px; }
-            .col-quality { width: 65px; min-width: 65px; }
             .col-link { width: 45px; min-width: 45px; }
             .col-select { width: 35px; min-width: 35px; }
             .col-notes { width: 110px; min-width: 100px; }
@@ -918,6 +944,11 @@
                 width: 1.5em;
                 height: 0.8em;
             }
+
+            .input-with-clear .clear-btn {
+                font-size: 0.75rem;
+                right: 4px;
+            }
         }
 
         /* Touch-friendly buttons */
@@ -959,7 +990,7 @@
         <!-- Filter Section - Collapsible -->
         <div class="filter-card">
             <h5 onclick="toggleFilters()">
-                <span>🔍 Filter Observations</span>
+                <span>Filter Observations</span>
                 <i class="bi bi-chevron-up" id="filterToggleIcon"></i>
             </h5>
             <div class="filter-content" id="filterContent">
@@ -967,21 +998,36 @@
                     <div class="row g-2 mt-2">
                         <div class="col-12 col-sm-6 col-md-3">
                             <label for="username" class="form-label">Username</label>
-                            <input type="text" class="form-control" id="username" placeholder="e.g., john_doe">
+                            <div class="input-with-clear">
+                                <input type="text" class="form-control" id="username" placeholder="e.g., john_doe">
+                                <button type="button" class="clear-btn" onclick="clearField('username')" title="Clear">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-12 col-sm-6 col-md-3">
                             <label for="taxon" class="form-label">Taxon</label>
-                            <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera">
+                            <div class="input-with-clear">
+                                <input type="text" class="form-control" id="taxon" placeholder="e.g., Lepidoptera">
+                                <button type="button" class="clear-btn" onclick="clearField('taxon')" title="Clear">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-12 col-sm-6 col-md-3">
                             <label for="project_id" class="form-label">Project ID</label>
-                            <input type="text" class="form-control" id="project_id" placeholder="e.g., 12345">
+                            <div class="input-with-clear">
+                                <input type="text" class="form-control" id="project_id" placeholder="e.g., 12345">
+                                <button type="button" class="clear-btn" onclick="clearField('project_id')" title="Clear">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-6 col-sm-3 col-md-3">
                             <label for="sortBy" class="form-label">Sort By</label>
                             <select class="form-select" id="sortBy">
                                 <option value="observed_on">Date</option>
-                                <option value="id">ID</option>
+                                <option value="id">iNaturalist ID</option>
                                 <option value="taxon">Taxon</option>
                                 <option value="user">Observer</option>
                                 <option value="place_guess">Location</option>
@@ -991,11 +1037,21 @@
                     <div class="row g-2">
                         <div class="col-6 col-sm-3 col-md-2">
                             <label for="date_start" class="form-label">Date From</label>
-                            <input type="date" class="form-control" id="date_start">
+                            <div class="input-with-clear">
+                                <input type="date" class="form-control" id="date_start">
+                                <button type="button" class="clear-btn" onclick="clearField('date_start')" title="Clear">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="col-6 col-sm-3 col-md-2">
                             <label for="date_end" class="form-label">Date To</label>
-                            <input type="date" class="form-control" id="date_end">
+                            <div class="input-with-clear">
+                                <input type="date" class="form-control" id="date_end">
+                                <button type="button" class="clear-btn" onclick="clearField('date_end')" title="Clear">
+                                    <i class="bi bi-x-circle-fill"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1012,22 +1068,27 @@
 
         <!-- ID Display Options - Separate Card -->
         <div class="id-display-card">
-            <div class="id-display-header" onclick="toggleIdDisplay()">
-                <h6>🔢 ID Display Options</h6>
+            <h5 onclick="toggleIdDisplay()">
+                <span>ID Display Options</span>
                 <i class="bi bi-chevron-up" id="idDisplayToggleIcon"></i>
-            </div>
+            </h5>
             <div class="id-display-content" id="idDisplayContent">
                 <div class="row g-2 mt-2">
                     <div class="col-12 col-sm-4">
                         <label for="idDisplay" class="form-label">Display Mode</label>
-                        <select class="form-select" id="idDisplay">
-                            <option value="plain">Plain</option>
-                            <option value="delimited" selected>With Separators</option>
+                        <select class="form-select" id="idDisplay" onchange="handleIdDisplayChange()">
+                            <option value="plain">No Delimiters</option>
+                            <option value="delimited" selected>Delimiters</option>
                         </select>
                     </div>
                     <div class="col-6 col-sm-4">
                         <label for="idDelimiter" class="form-label">Delimiter</label>
-                        <input type="text" class="form-control" id="idDelimiter" value="-" placeholder="-, ., _, |, etc.">
+                        <div class="input-with-clear">
+                            <input type="text" class="form-control" id="idDelimiter" value="-" placeholder="-, ., _, |, etc.">
+                            <button type="button" class="clear-btn" onclick="clearField('idDelimiter')" title="Clear">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </button>
+                        </div>
                     </div>
                     <div class="col-6 col-sm-4">
                         <label for="idPattern" class="form-label">Pattern</label>
@@ -1071,7 +1132,7 @@
                             <span id="mobileModeLabel">Off</span>
                         </label>
                     </div>
-                    <small class="text-muted ms-2">(Show only ID, Photo, Taxon)</small>
+                    <small class="text-muted ms-2">(Show only iNaturalist ID, Photo, Taxon)</small>
                 </div>
 
                 <div class="table-wrapper">
@@ -1097,7 +1158,7 @@
                                 <thead>
                                     <tr>
                                         <th class="sortable-header col-id" data-sort="id" onclick="sortTable('id')" style="min-width: 80px;">
-                                            ID <i class="bi bi-arrow-down-up"></i>
+                                            iNaturalist ID <i class="bi bi-arrow-down-up"></i>
                                         </th>
                                         <th class="col-photo">Photo</th>
                                         <th class="sortable-header col-taxon" data-sort="taxon" onclick="sortTable('taxon')" style="min-width: 140px;">
@@ -1112,7 +1173,6 @@
                                         <th class="sortable-header col-observer" data-sort="user" onclick="sortTable('user')" style="min-width: 100px;">
                                             Observer <i class="bi bi-arrow-down-up"></i>
                                         </th>
-                                        <th class="col-quality">Quality</th>
                                         <th class="col-link">Link</th>
                                         <th class="col-select">Select</th>
                                         <th class="col-notes">Notes</th>
@@ -1225,7 +1285,76 @@
                     photoModal.hide();
                 }
             });
+
+            // Initialize clear buttons
+            document.querySelectorAll('.input-with-clear .form-control').forEach(input => {
+                input.addEventListener('input', function() {
+                    const clearBtn = this.parentElement.querySelector('.clear-btn');
+                    if (this.value.length > 0) {
+                        clearBtn.classList.add('visible');
+                    } else {
+                        clearBtn.classList.remove('visible');
+                    }
+                });
+                // Check initial state
+                if (input.value.length > 0) {
+                    const clearBtn = input.parentElement.querySelector('.clear-btn');
+                    clearBtn.classList.add('visible');
+                }
+            });
+
+            // Handle ID display change on load
+            handleIdDisplayChange();
         });
+
+        // Clear a field
+        function clearField(fieldId) {
+            const input = document.getElementById(fieldId);
+            if (input) {
+                input.value = '';
+                input.dispatchEvent(new Event('input'));
+                input.focus();
+                // Trigger search if it's a filter field
+                if (['username', 'taxon', 'project_id', 'date_start', 'date_end'].includes(fieldId)) {
+                    // Don't auto-search, just clear
+                }
+                // If it's the delimiter, trigger ID display update
+                if (fieldId === 'idDelimiter') {
+                    idDelimiter = '';
+                    if (document.getElementById('observationsContainer').style.display !== 'none') {
+                        performSearch(currentPage);
+                    }
+                }
+            }
+        }
+
+        // Handle ID display mode change
+        function handleIdDisplayChange() {
+            const displayMode = document.getElementById('idDisplay').value;
+            const delimiterInput = document.getElementById('idDelimiter');
+            const patternSelect = document.getElementById('idPattern');
+
+            if (displayMode === 'plain') {
+                delimiterInput.disabled = true;
+                patternSelect.disabled = true;
+                delimiterInput.value = '';
+                // Hide clear button for delimiter
+                const clearBtn = delimiterInput.parentElement.querySelector('.clear-btn');
+                clearBtn.classList.remove('visible');
+            } else {
+                delimiterInput.disabled = false;
+                patternSelect.disabled = false;
+                if (!delimiterInput.value) {
+                    delimiterInput.value = '-';
+                }
+            }
+
+            // Update ID display
+            idDisplayMode = displayMode;
+            if (document.getElementById('observationsContainer').style.display !== 'none') {
+                performSearch(currentPage);
+            }
+        }
 
         // Toggle filters visibility
         function toggleFilters() {
@@ -1264,25 +1393,14 @@
             const toggle = document.getElementById('mobileModeToggle');
             const label = document.getElementById('mobileModeLabel');
             const table = document.getElementById('mainTable');
-            const tableWrapper = document.getElementById('tableScrollBody');
 
             mobileMode = toggle.checked;
             label.textContent = mobileMode ? 'On' : 'Off';
 
             if (mobileMode) {
                 table.classList.add('mobile-mode');
-                // Make taxon column wider in mobile mode
-                document.querySelectorAll('.col-taxon').forEach(el => {
-                    el.style.width = 'auto';
-                    el.style.minWidth = '150px';
-                });
             } else {
                 table.classList.remove('mobile-mode');
-                // Reset taxon column width
-                document.querySelectorAll('.col-taxon').forEach(el => {
-                    el.style.width = '';
-                    el.style.minWidth = '';
-                });
             }
         }
 
@@ -1844,7 +1962,6 @@
                     <td class="col-date" style="font-size: 0.75rem;">${obs.observed_on_formatted}</td>
                     <td class="col-location" style="font-size: 0.75rem;">${obs.place_guess}</td>
                     <td class="col-observer" style="font-size: 0.75rem;">${obs.user_login}</td>
-                    <td class="col-quality">${qualityBadge}</td>
                     <td class="col-link"><a href="${obs.url}" target="_blank" class="observation-link" style="font-size: 0.75rem;">View <i class="bi bi-box-arrow-up-right"></i></a></td>
                     <td class="col-select checkbox-cell">
                         <input type="checkbox"

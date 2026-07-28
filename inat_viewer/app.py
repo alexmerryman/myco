@@ -214,10 +214,6 @@ def search_observations():
         # Add sorting
         sort_mapping = {
             'observed_on': 'observed_on',
-            'id': 'id',
-            'taxon': 'taxon_name',
-            'user': 'user_login',
-            'place_guess': 'place_guess'
         }
         params['order_by'] = sort_mapping.get(sort_by, 'observed_on')
         params['order'] = 'desc' if sort_order == 'desc' else 'asc'
@@ -252,7 +248,6 @@ def search_observations():
                 # Get taxon information
                 taxon_data = obs.get('taxon', {})
                 taxon_rank = taxon_data.get('rank', 'Unknown')
-                taxon_rank_level = taxon_data.get('rank_level', '')
 
                 # Get photo URLs (thumbnail and full-size)
                 photo_url_thumbnail = get_photo_url(obs, 'square')
@@ -275,9 +270,6 @@ def search_observations():
                 # Get place guess (location)
                 place_guess = obs.get('place_guess', 'Unknown location')
 
-                # Get quality grade
-                quality_grade = obs.get('quality_grade', 'N/A')
-
                 # Get URI
                 uri = obs.get('uri', '')
 
@@ -288,14 +280,13 @@ def search_observations():
                     'id': obs.get('id'),
                     'taxon_name': taxon_data.get('name', 'Unknown'),
                     'common_name': taxon_data.get('preferred_common_name', 'N/A'),
-                    'taxon_rank': f"{taxon_rank} ({taxon_rank_level})" if taxon_rank_level else taxon_rank,
+                    'taxon_rank': taxon_rank,
                     'observed_on': observed_on,
                     'observed_on_formatted': formatted_date,
                     'place_guess': place_guess,
                     'user_login': user_login,
                     'user_id': user_data.get('id'),
                     'url': uri,
-                    'quality_grade': quality_grade,
                     'iconic_taxon_name': iconic_taxon_name,
                     'photo_url': photo_url_thumbnail,
                     'photo_url_full': photo_url_full,
