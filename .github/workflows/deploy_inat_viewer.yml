@@ -1,5 +1,4 @@
-# .github/workflows/deploy.yml (optional - for GitHub Actions)
-name: Deploy to fly.io
+name: CD - Deploy iNat Viewer to fly.io
 
 on:
   push:
