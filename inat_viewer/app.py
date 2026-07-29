@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 # iNaturalist API v2 base URL
 INATURALIST_API_V2 = "https://api.inaturalist.org/v2/observations"
+INATURALIST_API_V1_TAXA = "https://api.inaturalist.org/v1/taxa"
 PER_PAGE = 50  # Observations per page
 MAX_OBSERVATIONS = 1000  # Maximum observations to show on initial load
 
@@ -68,6 +69,26 @@ def format_id_with_delimiters(id_value, delimiter='-', pattern='every3'):
         return delimiter.join(parts)
     else:
         return id_str
+
+
+def get_taxon_id_from_name(taxon_name):
+    """Look up a taxon ID from a taxon name using the iNaturalist API."""
+    try:
+        params = {
+            'q': taxon_name,
+            'per_page': 1
+        }
+        response = requests.get(INATURALIST_API_V1_TAXA, params=params, timeout=5)
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get('results') and len(data['results']) > 0:
+            taxon = data['results'][0]
+            return taxon.get('id')
+        return None
+    except Exception as e:
+        app.logger.warning(f"Error looking up taxon ID for '{taxon_name}': {e}")
+        return None
 
 
 def get_photo_url(observation, size='square'):
@@ -196,9 +217,20 @@ def search_observations():
         if username:
             params['user_login'] = username
 
-        # Add taxon filter
+        # Add taxon filter - include all descendants
         if taxon:
-            params['taxon_name'] = taxon
+            # First, try to get the taxon ID from the name
+            taxon_id = get_taxon_id_from_name(taxon)
+            if taxon_id:
+                # Use taxon_id with the taxon_id_exclusive flag to include all descendants
+                # Setting taxon_id_exclusive=true means "include this taxon and all descendants"
+                params['taxon_id'] = taxon_id
+                params['taxon_id_exclusive'] = True
+                app.logger.info(f"Using taxon_id={taxon_id} with exclusive=true for taxon '{taxon}'")
+            else:
+                # Fallback: use taxon_name (exact match only)
+                params['taxon_name'] = taxon
+                app.logger.warning(f"Could not find taxon ID for '{taxon}', falling back to taxon_name")
 
         # Filter by Project ID
         if project_id:
