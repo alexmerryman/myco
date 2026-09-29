@@ -1045,6 +1045,21 @@
             <p class="lead">View observations for field specimen vouchering</p>
         </div>
 
+        <!-- About Section - Collapsible -->
+        <div class="filter-card">
+            <h5 onclick="toggleAbout()">
+                <span>About this Site</span>
+                <i class="bi bi-chevron-up" id="aboutToggleIcon"></i>
+            </h5>
+            <div class="filter-content" id="aboutContent">
+                <div class="id-display-help mt-2 mb-3">
+                    <p class="text-muted small mb-1">
+                    This site is intended to help with making field collections of fungi.
+                    </p>
+                </div>
+            </div>
+        </div>
+
         <!-- Filter Section - Collapsible -->
         <div class="filter-card">
             <h5 onclick="toggleFilters()">
@@ -1354,6 +1369,7 @@
         let photoModal = null;
         let selectedObservations = new Set();
         let observationNotes = {};
+        let aboutVisible = true;
         let filtersVisible = true;
         let idDisplayVisible = true;
         let mobileMode = false;
@@ -1455,6 +1471,22 @@
             } else {
                 // Use the formatId function with a sample ID
                 previewSpan.textContent = formatId('123456789', displayMode, delimiter, pattern);
+            }
+        }
+
+        // Toggle about visibility
+        function toggleAbout() {
+            const content = document.getElementById('aboutContent');
+            const icon = document.getElementById('aboutToggleIcon');
+
+            if (aboutVisible) {
+                content.classList.add('hidden');
+                icon.className = 'bi bi-chevron-down';
+                aboutVisible = false;
+            } else {
+                content.classList.remove('hidden');
+                icon.className = 'bi bi-chevron-up';
+                aboutVisible = true;
             }
         }
 
