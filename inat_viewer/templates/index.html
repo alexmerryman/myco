@@ -26,7 +26,8 @@
 
         /* Header */
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #256e43;
+            background: linear-gradient(90deg, rgba(37, 110, 67, 1) 6%, rgba(87, 199, 133, 1) 50%, rgba(237, 221, 83, 1) 100%);
             color: white;
             padding: 1.5rem 1rem;
             border-radius: 10px;
@@ -43,7 +44,7 @@
         }
 
         /* Cards */
-        .filter-card, .id-display-card, .result-card {
+        .filter-card, .id-display-card, .results-card, .about-card {
             background: white;
             border-radius: 10px;
             padding: 1rem;
@@ -51,7 +52,7 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
-        /* Filter Section - Collapsible */
+        /* Filter Card */
         .filter-card h5 {
             font-size: 1.1rem;
             margin-bottom: 0;
@@ -62,7 +63,7 @@
             align-items: center;
         }
         .filter-card h5:hover {
-            color: #667eea;
+            color: #57C785;
         }
         .filter-card h5 i {
             transition: transform 0.3s ease;
@@ -118,7 +119,7 @@
             display: block;
         }
 
-        /* ID Display Options - Same size as filter header */
+        /* ID Display Options Card */
         .id-display-card h5 {
             font-size: 1.1rem;
             margin-bottom: 0;
@@ -129,7 +130,7 @@
             align-items: center;
         }
         .id-display-card h5:hover {
-            color: #667eea;
+            color: #57C785;
         }
         .id-display-card h5 i {
             transition: transform 0.3s ease;
@@ -157,6 +158,17 @@
             padding: 0.5rem 0.75rem;
         }
 
+        /* Results Card */
+        .results-card h5 {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         /* Mobile Mode Toggle */
         .mobile-mode-toggle {
             display: flex;
@@ -175,8 +187,8 @@
             cursor: pointer;
         }
         .mobile-mode-toggle .form-switch .form-check-input:checked {
-            background-color: #667eea;
-            border-color: #667eea;
+            background-color: #57C785;
+            border-color: #57C785;
         }
         .mobile-mode-toggle .form-check-label {
             cursor: pointer;
@@ -298,7 +310,7 @@
             display: none;
         }
 
-        /* In mobile mode, make ID, Photo, and Taxon take more width */
+        /* In mobile mode: ID, Photo, and Taxon take more width */
         .mobile-mode .col-id { width: 100px; min-width: 100px; }
         .mobile-mode .col-photo { width: 100px; min-width: 100px; }
         .mobile-mode .col-taxon { width: auto; min-width: 150px; }
@@ -344,7 +356,7 @@
         .col-select { width: 50px; min-width: 45px; text-align: center; }
         .col-notes { width: 180px; min-width: 140px; }
 
-        /* Date/time cell with better text handling */
+        /* Date/time cell with text handling */
         .col-date {
             font-size: 0.75rem;
             word-break: break-word;
@@ -369,7 +381,7 @@
             width: 18px;
             height: 18px;
             cursor: pointer;
-            accent-color: #667eea;
+            accent-color: #57C785;
         }
         .checkbox-cell input[type="checkbox"]:hover {
             transform: scale(1.1);
@@ -386,7 +398,7 @@
             width: 100%;
         }
         .notes-cell .form-control:focus {
-            border-color: #667eea;
+            border-color: #57C785;
             background: white;
             box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
@@ -396,12 +408,12 @@
         }
         .notes-cell .form-control:not(:placeholder-shown) {
             background: #f8f9fa;
-            border-color: #667eea;
+            border-color: #57C785;
         }
 
         /* Selected row highlight */
         .table-scroll tr.selected td {
-            border-left: 3px solid #667eea;
+            border-left: 3px solid #57C785;
         }
         .table-scroll tr.selected .notes-cell .form-control {
             background: rgba(102, 126, 234, 0.05);
@@ -504,7 +516,7 @@
             border-top: 1px solid #dee2e6;
         }
         .pagination-info {
-            color: #6c757d;
+            color: #57C785;
             font-size: 0.85rem;
             text-align: center;
         }
@@ -521,7 +533,7 @@
             padding: 0.4rem 0.8rem;
         }
         .page-number-badge {
-            background: #667eea;
+            background: #57C785;
             color: white;
             padding: 4px 12px;
             border-radius: 20px;
@@ -569,6 +581,213 @@
         .loading-spinner .spinner-border {
             width: 2.5rem;
             height: 2.5rem;
+        }
+
+        /* About Card */
+        .about-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .about-card .about-header {
+            font-size: 1.1rem;
+            margin-bottom: 0;
+            cursor: pointer;
+            user-select: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .about-card .about-header:hover {
+            color: #57C785;
+        }
+
+        .about-card .about-header i {
+            transition: transform 0.3s ease;
+            font-size: 1.2rem;
+        }
+
+        .about-content {
+            overflow: hidden;
+            transition: max-height 0.5s ease;
+            max-height: 5000px;
+            padding-top: 0.5rem;
+        }
+
+        .about-content.hidden {
+            max-height: 0;
+            padding-top: 0;
+        }
+
+        /* Flowing paragraph blocks */
+        .about-block {
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .about-block-last {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .about-text {
+            color: #495057;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            margin-bottom: 0.75rem;
+        }
+
+        .about-text:last-child {
+            margin-bottom: 0;
+        }
+
+        .about-text strong {
+            color: #57C785;
+            font-weight: 600;
+        }
+
+        /* Full-width photos inside the flowing layout */
+        .about-photo-full {
+            width: 100%;
+            max-height: 400px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-top: 0.75rem;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .about-photo-full:hover {
+            transform: scale(1.01);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        .about-profile-photo {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+            float: left;
+            margin-right: 1rem;
+            margin-bottom: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .about-profile-photo:hover {
+            transform: scale(1.05);
+        }
+
+        .about-caption {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-style: italic;
+            margin-top: 0.25rem;
+            margin-bottom: 0;
+        }
+
+        /* Clear float after author section */
+        .about-block::after {
+            content: "";
+            display: table;
+            clear: both;
+        }
+
+        /* About Links */
+        .about-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 0.75rem;
+            clear: both;
+        }
+
+        .about-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: transparent;
+            border: 1px solid #dee2e6;
+            border-radius: 20px;
+            color: #57C785;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .about-link:hover {
+            background: #57C785;
+            color: white;
+            border-color: #57C785;
+            text-decoration: none;
+        }
+
+        /* Gallery row */
+        .gallery-row {
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Gallery item */
+        .gallery-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        /* Gallery photos */
+        .gallery-item .about-photo-full {
+            width: 100%;
+            height: auto;
+            max-height: 180px;
+            object-fit: contain;
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .gallery-item .about-photo-full:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+
+        /* Gallery captions centered */
+        .gallery-item .about-caption {
+            text-align: center;
+            color: #6c757d;
+            font-size: 0.8rem;
+            font-style: italic;
+            margin-top: 0.25rem;
+            margin-bottom: 0;
+            width: 100%;
+        }
+
+        /* Mobile responsive for gallery */
+        @media (max-width: 768px) {
+            .gallery-item .about-photo-full {
+                height: 140;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .gallery-item .about-photo-full {
+                height: 160;
+            }
         }
 
         /* Error Message */
@@ -722,11 +941,11 @@
                 font-size: 0.85rem;
             }
 
-            .filter-card, .id-display-card, .result-card {
+            .filter-card, .id-display-card, .results-card {
                 padding: 0.75rem;
                 border-radius: 8px;
             }
-            .filter-card h5, .id-display-card h5 {
+            .filter-card h5, .id-display-card h5, .results-card h5 {
                 font-size: 1rem;
             }
 
@@ -1045,7 +1264,7 @@
             <p class="lead">View observations for field specimen vouchering</p>
         </div>
 
-        <!-- Filter Section - Collapsible -->
+        <!-- Filter Card -->
         <div class="filter-card">
             <h5 onclick="toggleFilters()">
                 <span>Filter Observations</span>
@@ -1124,7 +1343,7 @@
             </div>
         </div>
 
-        <!-- ID Display Options - Separate Card -->
+        <!-- ID Display Options Card -->
         <div class="id-display-card">
             <h5 onclick="toggleIdDisplay()">
                 <span>iNaturalist ID Display Options</span>
@@ -1141,8 +1360,8 @@
                         <strong>Example:</strong>
                         <span class="badge bg-light text-dark border me-1">Display Mode: <i>Delimiters</i></span>
                         <span class="badge bg-light text-dark border me-1">Delimiter: <i>- (hyphen)</i></span>
-                        <span class="badge bg-light text-dark border">Characters per Delimiter: <i>3</i></span>
-                        <span class="ms-2">→ <code class="bg-light p-1 rounded">123-456-789</code></span>
+                        <span class="badge bg-light text-dark border">Characters per Delimiter: <i>3</i></span> :
+                        <span class="ms-2"><code class="bg-light p-1 rounded">123456789</code> → <code class="bg-light p-1 rounded">123-456-789</code></span>
                     </p>
                 </div>
                 <!-- ID Display Options/Fields -->
@@ -1187,8 +1406,11 @@
             </div>
         </div>
 
-        <!-- Results Section -->
-        <div class="result-card">
+        <!-- Results Card -->
+        <div class="results-card">
+            <h5>
+                <span>Results</span>
+            </h5>
             <div id="resultsSummary" class="mb-2">
                     <p class="text-muted mb-0" style="font-size: 0.9rem;">Enter filters above and click "Search" to view data.</p>
             </div>
@@ -1209,6 +1431,8 @@
             <!-- Observations Table with Sticky Header and Controls -->
             <div id="observationsContainer" style="display: none;">
                 <!-- Mobile Mode Toggle -->
+                <!-- TODO Fix alignment between "Mobile Mode" text and form-switch -->
+                <!-- TODO Fix Export functionality -->
                 <div class="mobile-mode-toggle">
                     <span>📱 Mobile Mode</span>
                     <div class="form-check form-switch">
@@ -1296,6 +1520,122 @@
                 </div>
             </div>
         </div>
+
+        <!-- About Card -->
+        <div class="about-card">
+            <h5 class="about-header" onclick="toggleAbout()">
+                <span>About</span>
+                <i class="bi bi-chevron-up" id="aboutToggleIcon"></i>
+            </h5>
+            <div class="about-content" id="aboutContent">
+
+                <div class="about-block">
+                    <p class="about-text">
+                        This site is intended to augment the <a href="https://drive.google.com/file/d/1zCwkoidI0VrqVDcQ-k9yl5kqQdfIhJfe/view" target="_blank">macrofungi field collection protocol</a> detailed by the <a href="https://www.botanicgardens.org/our-collections/sam-mitchel-herbarium-fungi" target="_blank">Sam Mitchel Herbarium of Fungi</a> at Denver Botanic Gardens.
+
+                        Specifically, this site is meant to improve the process of recording iNaturalist IDs on physical, pre-printed, paper <strong>voucher tags</strong>, thereby linking a physical specimen and its associated analog (handwritten) data with its associated digital data and iNaturalist observation.
+                        <br><br>
+                        When fungi are collected in the field for long-term storage in an herbarium/fungarium for future research, collectors often include a voucher tag with the fungal specimen, and may include the tag in in-situ photos (to explicitly link the photo of the specimen to its unique ID in the herbarium system). For example, see this observation of <a href="https://www.inaturalist.org/observations/399730352" target="_blank"> <i>Matsutake</i> mushrooms</a>.
+                        <br><br>
+                        While voucher tag designs vary across institutions and organizations, at a minimum they generally include the following features: a unique ID (often uniquely identifying a specimen within a collection/herbarium), collection date and location, collector name, notes (often to record associated species, like trees), and iNaturalist ID.
+                        The <strong>iNaturalist ID</strong> (a unique, incremented integer number the iNaturalist platform assigns to each observation) is critical to record with the physical specimen as it is the primary link between the specimen itself, any analog data collected along with it, and any digital data collected for the specimen, including photos and DNA sequence data.
+                    </p>
+                </div>
+
+                <!-- Voucher examples -->
+                <div class="about-block">
+                    <h6 class="about-subtitle">Examples of Different Voucher Tag Designs</h6>
+                    <div class="row g-3 mt-1 gallery-row">
+                        <div class="col-12 col-md-4 gallery-item">
+                            <img src="{{ url_for('static', filename='images/voucher-tags/tag-1.png') }}"
+                                 alt="Fungal Diversity Survey voucher tag"
+                                 class="about-photo-full">
+                            <p class="about-caption">Fungal Diversity Survey voucher tag</p>
+                        </div>
+                        <div class="col-12 col-md-4 gallery-item">
+                            <img src="{{ url_for('static', filename='images/voucher-tags/tag-2.jpg') }}"
+                                 alt="2023 Fall Continental Mycoblitz voucher tag"
+                                 class="about-photo-full">
+                            <p class="about-caption">2023 Fall Continental Mycoblitz voucher tag</p>
+                        </div>
+                        <div class="col-12 col-md-4 gallery-item">
+                            <img src="{{ url_for('static', filename='images/voucher-tags/tag-3.jpg') }}"
+                                 alt="North American Mycofloral Project voucher tag"
+                                 class="about-photo-full">
+                            <p class="about-caption">North American Mycofloral Project voucher tag</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="about-block">
+                    <p class="about-text">
+                        However, it is often the case that field collections are made in remote locations with little or no cellular or internet service;
+                        therefore, while iNaturalist observations may be created in the app, they merely exist on the local device and cannot be uploaded to iNaturalist servers and assigned a unique iNaturalist ID until the observer has internet service to do so.
+                        <br><br>
+                        Voucher tags are often provided to collectors in the field by the institution hosting the fungal survey/foray/collection event. For example, the Sam Mitchel Herbarium of Fungi prints hundreds of voucher tags at the beginning of each year for Colorado Mycological Society members to use on forays -- any foray participant who wants to collect fungi for science can obtain some voucher tags in order to collect and document fungal biodiversity.
+                        <br><br>
+                        Some mycologists prefer to print voucher tags after a survey or collection event has concluded: Alan Rockefeller's <a href="https://dikarya.us/labels" target="_blank">site</a> can be used to do so.
+                        However, there are several downsides to this approach:<br>
+                            - Any analog data collected in the field must be re-recorded digitally.<br>
+                            - Taking photos of specimens with unique voucher tags in the field helps prevent mixing up specimens later.<br>
+                            - It requires the additional step of printing voucher tags later, which may discourage some from making collections (particularly more amateur citizen scientists).
+                        <br><br>
+                        It is possible to view an observation's iNaturalist ID from the iNaturalist mobile apps, but the ID value is displayed in a very small font on a screen that requires a significant amount of tapping and scrolling to get to (and IDs can only be viewed for individual observations, not many at once).
+                        When vouching large numbers of specimens, this quickly becomes tedious and tiresome. Using the iNaturalist web app can alleviate some of this, but still suffers from similar issues when vouchering many specimens in a single session.
+                        Furthermore, the iNaturalist ID is displayed as an uninterrupted 9-digit integer with no delimiters -- significantly reducing its readability to human eyes.
+
+                        <br><br>
+                        <strong>Summary</strong><br>
+                        I made this site in order to remedy the problems I frequently encountered while vouchering my specimens.
+                        This site is meant to help mycologists who prefer to use pre-printed voucher tags by enabling collectors to more easily record a specimen's iNaturalist ID onto the voucher tag.
+
+                        This site:<br>
+                        - Improves the process of recording iNaturalist IDs for many specimens at once.<br>
+                        - Helps prevent errors in recording iNaturalist IDs by adding delimiters to the 9+ digit number.<br>
+                        - Encourages citizen science: more casual collectors can easily voucher specimens in the field and use iNaturalist (since voucher tags are often provided on forays, this eliminates the need for collectors to print tags later).
+                    </p>
+                </div>
+
+                <!-- About -->
+                <div class="about-block">
+                    <h6 class="about-subtitle">About Me</h6>
+                    <img src="{{ url_for('static', filename='images/other/headshot.jpg') }}"
+                         alt="Alex"
+                         class="about-profile-photo">
+                    <p class="about-text">
+                        Hi! I'm Alex, an amateur mycologist and software engineer. I built this app to help
+                        streamline my field work and share it with the community. Feel free to reach
+                        out if you have questions, suggestions, or want to collaborate!
+                    </p>
+                    <div class="about-links">
+<!--                        <a href="mailto:you@example.com" class="about-link">-->
+<!--                            <i class="bi bi-envelope"></i> Email-->
+<!--                        </a>-->
+                        <a href="https://github.com/alexmerryman" class="about-link" target="_blank">
+                            <i class="bi bi-github"></i> GitHub
+                        </a>
+                        <a href="https://alexmerryman.github.io/myco.github.io/" class="about-link" target="_blank">
+                            <i class="bi bi-globe2"></i> Website
+                        </a>
+                        <a href="https://www.inaturalist.org/observations?user_id=alexmerryman" class="about-link" target="_blank">
+                            <i class="bi bi-globe2"></i> iNaturalist
+                        </a>
+
+                    </div>
+                </div>
+
+                <!-- Acknowledgments -->
+                <div class="about-block about-block-last">
+                    <h6 class="about-subtitle">Acknowledgments</h6>
+                    <p class="about-text">
+                        This app is built on the iNaturalist API. Thank you to the iNaturalist community
+                        for making this important scientific data accessible to the public.
+                        <br><br>
+                        Thank you also to Dr. Andrew Wilson and colleagues at Denver Botanic Gardens for testing this app and providing feedback.
+                    </p>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Photo Modal -->
@@ -1352,6 +1692,7 @@
         let photoModal = null;
         let selectedObservations = new Set();
         let observationNotes = {};
+        let aboutVisible = true;
         let filtersVisible = true;
         let idDisplayVisible = true;
         let mobileMode = false;
@@ -1456,7 +1797,23 @@
             }
         }
 
-        // Toggle filters visibility
+        // Toggle About Card visibility
+        function toggleAbout() {
+            const content = document.getElementById('aboutContent');
+            const icon = document.getElementById('aboutToggleIcon');
+
+            if (aboutVisible) {
+                content.classList.add('hidden');
+                icon.className = 'bi bi-chevron-down';
+                aboutVisible = false;
+            } else {
+                content.classList.remove('hidden');
+                icon.className = 'bi bi-chevron-up';
+                aboutVisible = true;
+            }
+        }
+
+        // Toggle Filters Card visibility
         function toggleFilters() {
             const content = document.getElementById('filterContent');
             const icon = document.getElementById('filterToggleIcon');
@@ -1472,7 +1829,7 @@
             }
         }
 
-        // Toggle ID display options visibility
+        // Toggle ID Display Options Card visibility
         function toggleIdDisplay() {
             const content = document.getElementById('idDisplayContent');
             const icon = document.getElementById('idDisplayToggleIcon');
