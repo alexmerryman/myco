@@ -8,7 +8,10 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY . .
+COPY app.py config.py inat_api.py inat_auth.py ./
+COPY viewer/ viewer/
+COPY uploader/ uploader/
+COPY templates/ templates/
 
 # Create templates directory if it doesn't exist
 RUN mkdir -p templates

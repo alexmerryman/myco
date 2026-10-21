@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>iNaturalist Photo Uploader</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            background-color: #f0f2f5;
+            padding: 10px 0 0 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        }
+
+        .container { max-width: 1400px; padding: 0 10px; }
+
+        /* Header (matches index) */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 1.5rem 1rem;
+            border-radius: 10px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            position: relative;
+        }
+        .header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+        .header .lead { font-size: 1rem; margin-bottom: 0; }
+        .header .back-link {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        .header .back-link:hover { color: white; }
+
+        /* Cards */
+        .tool-card {
+            background: white;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .tool-card h5 {
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed #adb5bd;
+            border-radius: 10px;
+            padding: 2rem 1rem;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: #f8f9fa;
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.05);
+        }
+        .drop-zone .bi {
+            font-size: 3rem;
+            color: #adb5bd;
+            transition: color 0.2s;
+        }
+        .drop-zone:hover .bi, .drop-zone.dragover .bi {
+            color: #667eea;
+        }
+        .drop-zone p { margin: 0.5rem 0 0 0; color: #6c757d; }
+        .drop-zone input[type="file"] { display: none; }
+
+        /* Status */
+        .status-bar {
+            display: none;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .status-bar.active { display: flex; }
+        .status-bar.info { background: #e7f1ff; color: #084298; }
+        .status-bar.warn { background: #fff3cd; color: #664d03; }
+        .status-bar.danger { background: #f8d7da; color: #842029; }
+        .status-bar.success { background: #d1e7dd; color: #0f5132; }
+
+        /* Group card */
+        .suggestion-group {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .group-thumbs {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .group-thumbs img {
+            width: 44px;
+            height: 44px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+
+        /* Suggestion rows */
+        .suggestion-option {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.65rem;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            background: white;
+        }
+        .suggestion-option:hover {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.03);
+        }
+        .suggestion-option.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.08);
+        }
+        .suggestion-option input[type="radio"] {
+            margin-right: 0.5rem;
+            accent-color: #667eea;
+        }
+        .suggestion-option .obs-photo {
+            width: 42px;
+            height: 42px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-right: 0.5rem;
+            border: 1px solid #dee2e6;
+        }
+        .suggestion-option .obs-photo.placeholder {
+            background: #e9ecef;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #adb5bd;
+            font-size: 0.7rem;
+        }
+        .suggestion-option .obs-info { flex: 1; min-width: 0; }
+        .suggestion-option .obs-taxon {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #212529;
+        }
+        .suggestion-option .obs-meta {
+            font-size: 0.75rem;
+            color: #6c757d;
+        }
+        .suggestion-option .score-pill {
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .score-high { background: #d1e7dd; color: #0f5132; }
+        .score-mid { background: #fff3cd; color: #664d03; }
+        .score-low { background: #f8d7da; color: #842029; }
+
+        /* Manual override input */
+        .manual-input-row {
+            display: none;
+            margin-top: 0.5rem;
+        }
+        .manual-input-row.active { display: flex; }
+
+        /* Upload queue list */
+        .queue-summary {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            font-size: 0.85rem;
+            color: #495057;
+            margin-bottom: 0.75rem;
+        }
+        .queue-summary .stat {
+            background: #f8f9fa;
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid #dee2e6;
+        }
+        .queue-summary .stat strong {
+            color: #667eea;
+        }
+
+        /* Progress bar */
+        .upload-progress {
+            display: none;
+            margin-top: 0.75rem;
+        }
+        .upload-progress.active { display: block; }
+        .upload-progress .progress {
+            height: 8px;
+            border-radius: 4px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 1.5rem;
+            padding: 1.5rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .footer a {
+            color: white;
+            text-decoration: none;
+            opacity: 0.85;
+            transition: opacity 0.2s;
+        }
+        .footer a:hover { opacity: 1; text-decoration: underline; }
+
+        /* Buttons */
+        .btn-primary {
+            background-color: #667eea;
+            border-color: #667eea;
+        }
+        .btn-primary:hover:not(:disabled) {
+            background-color: #5a6fd6;
+            border-color: #4a5fc4;
+        }
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Mobile */
+        @media (max-width: 768px) {
+            body { padding: 5px 0 0 0; }
+            .container { padding: 0 5px; }
+
+            .header {
+                padding: 1.25rem 0.75rem 1rem;
+                border-radius: 8px;
+            }
+            .header h1 { font-size: 1.3rem; }
+            .header .lead { font-size: 0.85rem; }
+            .header .back-link {
+                position: static;
+                display: inline-block;
+                margin-bottom: 0.5rem;
+                font-size: 0.8rem;
+            }
+
+            .tool-card {
+                padding: 0.75rem;
+                border-radius: 8px;
+            }
+            .tool-card h5 { font-size: 1rem; }
+
+            .drop-zone { padding: 1.5rem 0.75rem; }
+            .drop-zone .bi { font-size: 2.25rem; }
+            .drop-zone p { font-size: 0.85rem; }
+
+            .suggestion-group { padding: 0.75rem; }
+            .group-thumbs img { width: 36px; height: 36px; }
+            .suggestion-option { padding: 0.4rem 0.5rem; }
+            .suggestion-option .obs-photo { width: 36px; height: 36px; }
+            .suggestion-option .obs-taxon { font-size: 0.8rem; }
+            .suggestion-option .obs-meta { font-size: 0.7rem; }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 { font-size: 1.15rem; }
+            .suggestion-option .obs-photo { width: 32px; height: 32px; }
+            .score-pill { font-size: 0.65rem; padding: 1px 6px; }
+        }
+
+        /* Loading spinner */
+        .inline-spinner {
+            display: inline-block;
+            width: 1rem;
+            height: 1rem;
+            border: 2px solid currentColor;
+            border-right-color: transparent;
+            border-radius: 50%;
+            animation: spinner-border 0.75s linear infinite;
+            margin-right: 0.35rem;
+            vertical-align: -0.15em;
+        }
+        @keyframes spinner-border {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header text-center">
+            <a href="/" class="back-link">
+                <i class="bi bi-arrow-left"></i> Back to Viewer
+            </a>
+            <h1>📤 Photo Uploader</h1>
+            <p class="lead">Bulk upload photos to iNaturalist observations without timeouts</p>
+        </div>
+
+        <!-- Step 1: Select photos -->
+        <div class="tool-card">
+            <h5>1. Select Photos</h5>
+            <div class="drop-zone" id="dropZone">
+                <input type="file" id="fileInput" multiple accept="image/*">
+                <i class="bi bi-cloud-arrow-up"></i>
+                <p><strong>Click to choose photos</strong> or drag & drop them here</p>
+                <p class="small mb-0">Photos are resized in your browser before upload to avoid API timeouts</p>
+            </div>
+
+            <div class="status-bar" id="statusBar"></div>
+
+            <div class="queue-summary" id="queueSummary" style="display:none;"></div>
+
+            <!-- Upload progress -->
+            <div class="upload-progress" id="uploadProgress">
+                <div class="d-flex justify-content-between mb-1" style="font-size:0.85rem;">
+                    <span id="progressLabel">Uploading…</span>
+                    <span id="progressCount">0 / 0</span>
+                </div>
+                <div class="progress">
+                    <div class="progress-bar" id="progressBar" role="progressbar" style="width:0%;"></div>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2 mt-3 flex-wrap" id="actionRow" style="display:none;">
+                <button class="btn btn-primary flex-grow-1 flex-sm-grow-0" id="uploadBtn" onclick="startUpload()">
+                    <i class="bi bi-cloud-upload"></i> Upload All
+                </button>
+                <button class="btn btn-secondary flex-grow-1 flex-sm-grow-0" onclick="resetAll()">
+                    <i class="bi bi-x-circle"></i> Reset
+                </button>
+            </div>
+        </div>
+
+        <!-- Step 2: Suggestions -->
+        <div class="tool-card" id="suggestionsCard" style="display:none;">
+            <h5>2. Confirm Observations</h5>
+            <p class="text-muted" style="font-size:0.85rem;">
+                Photos are grouped by timestamp. Each group has suggested observations based on
+                time proximity (and location if available). Select one per group, or enter an
+                observation ID manually.
+            </p>
+            <div id="groupsContainer"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p class="mb-1">
+                <i class="bi bi-code-slash"></i> Built with Flask &amp; Bootstrap ·
+                <i class="bi bi-database"></i> Powered by the iNaturalist API
+            </p>
+            <a href="/"><i class="bi bi-arrow-left"></i> Return to iNaturalist Viewer</a>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exifr@7.1.3/dist/full.umd.js"></script>
+    <script>
+        // ============================================================
+        // Configuration
+        // ============================================================
+        const GROUP_GAP_MINUTES = 15;   // start a new group after a 15-min gap
+        const RESIZE_MAX_DIM = 2048;     // long edge in pixels
+        const RESIZE_QUALITY = 0.85;     // JPEG quality
+        const MAX_SUGGESTIONS = 5;       // per group
+
+        // ============================================================
+        // State
+        // ============================================================
+        let currentGroups = [];          // [{index, photos, start, end, gps}]
+        let isUploading = false;
+
+        // ============================================================
+        // Status helpers
+        // ============================================================
+        function setStatus(msg, kind = "info", spinner = false) {
+            const bar = document.getElementById("statusBar");
+            if (!msg) { bar.classList.remove("active"); return; }
+            bar.className = `status-bar active ${kind}`;
+            bar.innerHTML = (spinner ? '<span class="inline-spinner"></span>' : '') + msg;
+        }
+
+        // ============================================================
+        // File input & drag/drop
+        // ============================================================
+        const dropZone = document.getElementById("dropZone");
+        const fileInput = document.getElementById("fileInput");
+
+        dropZone.addEventListener("click", (e) => {
+            if (e.target.tagName !== "INPUT") fileInput.click();
+        });
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("dragover");
+        });
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("dragover");
+            handleFiles(e.dataTransfer.files);
+        });
+        fileInput.addEventListener("change", (e) => handleFiles(e.target.files));
+
+        // ============================================================
+        // Main flow
+        // ============================================================
+        async function handleFiles(fileList) {
+            const files = Array.from(fileList).filter(f => f.type.startsWith("image/"));
+            if (!files.length) { setStatus("No image files selected.", "warn"); return; }
+
+            setStatus(`Reading EXIF data from ${files.length} photo${files.length !== 1 ? "s" : ""}…`, "info", true);
+
+            // 1. Read EXIF
+            const metas = await readAllMeta(files);
+
+            // 2. Group by timestamp
+            currentGroups = groupPhotos(metas);
+            setStatus(`Grouped into ${currentGroups.length} time group${currentGroups.length !== 1 ? "s" : ""}. Finding matching observations…`, "info", true);
+
+            // 3. Render groups + placeholders while suggestions load
+            renderGroups(currentGroups);
+
+            // 4. Fetch suggestions
+            try {
+                const suggestions = await fetchSuggestions(currentGroups);
+                applySuggestions(suggestions);
+                setStatus(`Ready to upload ${files.length} photos across ${currentGroups.length} group${currentGroups.length !== 1 ? "s" : ""}.`, "success");
+            } catch (err) {
+                console.error(err);
+                setStatus("Could not fetch observation suggestions. You can enter observation IDs manually.", "warn");
+            }
+
+            document.getElementById("actionRow").style.display = "flex";
+            document.getElementById("suggestionsCard").style.display = "block";
+            updateQueueSummary();
+        }
+
+        // ============================================================
+        // EXIF reading (bounded concurrency)
+        // ============================================================
+        async function readPhotoMeta(file) {
+            let exif = null;
+            try {
+                exif = await exifr.parse(file, ["DateTimeOriginal", "CreateDate", "GPSLatitude", "GPSLongitude"]);
+            } catch (_) {}
+
+            const takenAt = exif?.DateTimeOriginal || exif?.CreateDate || new Date(file.lastModified);
+            return {
+                file,
+                takenAt: new Date(takenAt),
+                gps: (exif?.GPSLatitude != null && exif?.GPSLongitude != null)
+                    ? { lat: exif.GPSLatitude, lon: exif.GPSLongitude }
+                    : null,
+                hasExif: !!exif?.DateTimeOriginal,
+            };
+        }
+
+        async function readAllMeta(files, concurrency = 4) {
+            const out = [];
+            for (let i = 0; i < files.length; i += concurrency) {
+                const batch = files.slice(i, i + concurrency);
+                out.push(...await Promise.all(batch.map(readPhotoMeta)));
+            }
+            return out;
+        }
+
+        // ============================================================
+        // Grouping
+        // ============================================================
+        function groupPhotos(photos, gapMinutes = GROUP_GAP_MINUTES) {
+            const sorted = [...photos].sort((a, b) => a.takenAt - b.takenAt);
+            const groups = [];
+            for (const p of sorted) {
+                const last = groups[groups.length - 1];
+                if (last && p.takenAt - last.photos[last.photos.length - 1].takenAt <= gapMinutes * 60_000) {
+                    last.photos.push(p);
+                } else {
+                    groups.push({ photos: [p] });
+                }
+            }
+            return groups.map((g, idx) => {
+                const start = g.photos[0].takenAt;
+                const end = g.photos[g.photos.length - 1].takenAt;
+                const withGps = g.photos.filter(p => p.gps);
+                const gps = withGps.length
+                    ? {
+                        lat: withGps.reduce((s, p) => s + p.gps.lat, 0) / withGps.length,
+                        lon: withGps.reduce((s, p) => s + p.gps.lon, 0) / withGps.length,
+                    }
+                    : null;
+                return { index: idx, photos: g.photos, start, end, gps, suggestion: null };
+            });
+        }
+
+        // ============================================================
+        // Suggestions API
+        // ============================================================
+        async function fetchSuggestions(groups) {
+            const resp = await fetch("/api/suggest-observations", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    groups: groups.map(g => ({
+                        start: g.start.toISOString(),
+                        end: g.end.toISOString(),
+                        gps: g.gps,
+                    })),
+                }),
+            });
+            if (!resp.ok) throw new Error("Suggestion request failed");
+            const data = await resp.json();
+            return data.results || [];
+        }
+
+        // ============================================================
+        // Rendering
+        // ============================================================
+        function renderGroups(groups) {
+            const container = document.getElementById("groupsContainer");
+            container.innerHTML = groups.map(g => renderGroupCard(g)).join("");
+        }
+
+        function renderGroupCard(group) {
+            const sameDay = group.start.toDateString() === group.end.toDateString();
+            const timeStr = sameDay
+                ? `${group.start.toLocaleDateString()} ${fmtTime(group.start)}–${fmtTime(group.end)}`
+                : `${group.start.toLocaleString()} → ${group.end.toLocaleString()}`;
+
+            const thumbs = group.photos.slice(0, 6).map(p =>
+                `<img src="${URL.createObjectURL(p.file)}" alt="">`
+            ).join("");
+
+            return `
+                <div class="suggestion-group" id="group-${group.index}">
+                    <div class="d-flex justify-content-between align-items-start mb-2 flex-wrap gap-2">
+                        <div>
+                            <strong>📸 Group ${group.index + 1}</strong>
+                            <span class="text-muted" style="font-size:0.85rem;margin-left:0.5rem;">
+                                ${group.photos.length} photo${group.photos.length !== 1 ? "s" : ""}
+                            </span>
+                            <div class="text-muted" style="font-size:0.8rem;">
+                                <i class="bi bi-clock"></i> ${timeStr}
+                                ${group.gps ? ` · <i class="bi bi-geo-alt"></i> GPS` : ""}
+                            </div>
+                        </div>
+                        <div class="group-thumbs">${thumbs}</div>
+                    </div>
+
+                    <div class="suggestions-list" id="suggestions-${group.index}">
+                        <div class="text-muted" style="font-size:0.8rem;">
+                            <span class="inline-spinner"></span> Looking up matching observations…
+                        </div>
+                    </div>
+
+                    <div class="manual-input-row" id="manual-${group.index}">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text"><i class="bi bi-pencil"></i></span>
+                            <input type="text" class="form-control" placeholder="Enter observation ID or URL"
+                                   onkeydown="if(event.key==='Enter'){applyManualObs(${group.index}, this.value);}">
+                            <button class="btn btn-outline-primary" type="button"
+                                    onclick="applyManualObs(${group.index}, this.previousElementSibling.value)">
+                                Use
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function fmtTime(d) {
+            return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+        }
+
+        function applySuggestions(suggestions) {
+            for (const res of suggestions) {
+                const group = currentGroups[res.group_index];
+                group.suggestion = res.suggestions || [];
+                renderSuggestionList(group);
+            }
+            // For any group that didn't get a response, show manual entry
+            for (const group of currentGroups) {
+                if (!group.suggestion) {
+                    document.getElementById(`suggestions-${group.index}`).innerHTML =
+                        '<div class="alert alert-warning py-2 px-3 mb-0" style="font-size:0.85rem;">' +
+                        '<i class="bi bi-exclamation-triangle"></i> No matches found in the ±1 day window. Use manual entry below.</div>';
+                    showManualInput(group.index);
+                }
+            }
+        }
+
+        function renderSuggestionList(group) {
+            const listEl = document.getElementById(`suggestions-${group.index}`);
+            const suggestions = group.suggestion || [];
+
+            if (!suggestions.length) {
+                listEl.innerHTML =
+                    '<div class="alert alert-warning py-2 px-3 mb-0" style="font-size:0.85rem;">' +
+                    '<i class="bi bi-exclamation-triangle"></i> No matching observations. Use manual entry below.</div>';
+                showManualInput(group.index);
+                return;
+            }
+
+            listEl.innerHTML = suggestions.map((s, i) => {
+                const o = s.observation;
+                const taxon = o.taxon?.preferred_common_name || o.taxon?.name || "Unknown taxon";
+                const sciName = o.taxon?.preferred_common_name && o.taxon?.name
+                    ? `<em style="color:#6c757d;font-size:0.75rem;">${o.taxon.name}</em>`
+                    : "";
+                const photo = o.observation_photos && o.observation_photos[0]?.photo?.square;
+                const photoHtml = photo
+                    ? `<img src="${photo}" alt="" class="obs-photo">`
+                    : `<div class="obs-photo placeholder"><i class="bi bi-image"></i></div>`;
+
+                const dist = s.distance_km != null
+                    ? ` · ${s.distance_km < 1 ? Math.round(s.distance_km * 1000) + " m" : s.distance_km + " km"}`
+                    : "";
+                const dateOnly = s.time_precise ? "" : ' <span class="badge bg-secondary" style="font-size:0.6rem;">date only</span>';
+
+                let scoreClass = "score-low";
+                if (s.score >= 70) scoreClass = "score-high";
+                else if (s.score >= 30) scoreClass = "score-mid";
+
+                return `
+                    <label class="suggestion-option ${i === 0 ? "selected" : ""}" id="opt-${group.index}-${i}">
+                        <input type="radio" name="obs-${group.index}" value="${o.uuid}"
+                               data-obs-id="${o.id}" data-obs-taxon="${escapeHtml(taxon)}"
+                               ${i === 0 ? "checked" : ""}
+                               onchange="onSuggestionChange(${group.index}, ${i})">
+                        ${photoHtml}
+                        <div class="obs-info">
+                            <div class="obs-taxon">${escapeHtml(taxon)}${dateOnly}</div>
+                            <div class="obs-meta">
+                                ${sciName ? sciName + " · " : ""}
+                                ${o.observed_on || ""}
+                                · ${humanGap(s.time_gap_minutes)}${dist}
+                                ${o.place_guess ? " · " + escapeHtml(o.place_guess) : ""}
+                            </div>
+                        </div>
+                        <span class="score-pill ${scoreClass}">${s.score}</span>
+                    </label>`;
+            }).join("") + `
+                <div class="mt-2">
+                    <button class="btn btn-sm btn-outline-secondary" type="button"
+                            onclick="toggleManualInput(${group.index})">
+                        <i class="bi bi-pencil"></i> Enter observation ID manually
+                    </button>
+                </div>`;
+        }
+
+        function onSuggestionChange(groupIndex, optionIndex) {
+            document.querySelectorAll(`#suggestions-${groupIndex} .suggestion-option`)
+                .forEach(el => el.classList.remove("selected"));
+            document.getElementById(`opt-${groupIndex}-${optionIndex}`).classList.add("selected");
+            hideManualInput(groupIndex);
+        }
+
+        function toggleManualInput(groupIndex) {
+            const row = document.getElementById(`manual-${groupIndex}`);
+            if (row.classList.contains("active")) hideManualInput(groupIndex);
+            else showManualInput(groupIndex);
+        }
+
+        function showManualInput(groupIndex) {
+            document.getElementById(`manual-${groupIndex}`).classList.add("active");
+            // Uncheck any radio selections since user is overriding
+            document.querySelectorAll(`input[name="obs-${groupIndex}"]`)
+                .forEach(r => r.checked = false);
+            document.querySelectorAll(`#suggestions-${groupIndex} .suggestion-option`)
+                .forEach(el => el.classList.remove("selected"));
+        }
+
+        function hideManualInput(groupIndex) {
+            document.getElementById(`manual-${groupIndex}`).classList.remove("active");
+        }
+
+        function applyManualObs(groupIndex, rawValue) {
+            if (!rawValue || !rawValue.trim()) return;
+            // Extract numeric ID from a URL or plain ID
+            const match = rawValue.trim().match(/(\d+)/);
+            if (!match) { alert("Could not find an observation ID in that input."); return; }
+
+            const obsId = parseInt(match[1]);
+            currentGroups[groupIndex].manualObsId = obsId;
+            currentGroups[groupIndex].manualObsUuid = null;
+
+            // Show confirmation in the manual row
+            const row = document.getElementById(`manual-${groupIndex}`);
+            row.innerHTML = `
+                <div class="alert alert-info py-1 px-2 mb-0 d-flex justify-content-between align-items-center" style="font-size:0.85rem;">
+                    <span><i class="bi bi-check-circle"></i> Using observation <strong>#${obsId}</strong></span>
+                    <button class="btn btn-sm btn-link p-0 text-decoration-none" type="button"
+                            onclick="clearManualObs(${groupIndex})">
+                        <i class="bi bi-x-circle"></i> Clear
+                    </button>
+                </div>`;
+            row.classList.add("active");
+        }
+
+        function clearManualObs(groupIndex) {
+            currentGroups[groupIndex].manualObsId = null;
+            currentGroups[groupIndex].manualObsUuid = null;
+            // Restore the manual input row
+            document.getElementById(`manual-${groupIndex}`).innerHTML = `
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text"><i class="bi bi-pencil"></i></span>
+                    <input type="text" class="form-control" placeholder="Enter observation ID or URL"
+                           onkeydown="if(event.key==='Enter'){applyManualObs(${groupIndex}, this.value);}">
+                    <button class="btn btn-outline-primary" type="button"
+                            onclick="applyManualObs(${groupIndex}, this.previousElementSibling.value)">
+                        Use
+                    </button>
+                </div>`;
+            if (currentGroups[groupIndex].suggestion && currentGroups[groupIndex].suggestion.length) {
+                // Re-select the top suggestion
+                const first = document.getElementById(`opt-${groupIndex}-0`);
+                if (first) {
+                    first.classList.add("selected");
+                    const radio = first.querySelector("input");
+                    if (radio) radio.checked = true;
+                }
+            }
+        }
+
+        function humanGap(minutes) {
+            if (minutes === 0) return "in window";
+            if (minutes < 60) return `${Math.round(minutes)} min away`;
+            const h = minutes / 60;
+            if (h < 24) return `${h.toFixed(1)} h away`;
+            return `${Math.round(h / 24)} d away`;
+        }
+
+        function escapeHtml(s) {
+            return String(s == null ? "" : s)
+                .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+        }
+
+        // ============================================================
+        // Queue summary
+        // ============================================================
+        function updateQueueSummary() {
+            const totalPhotos = currentGroups.reduce((n, g) => n + g.photos.length, 0);
+            const totalBytes = currentGroups.reduce((n, g) => n + g.photos.reduce((m, p) => m + p.file.size, 0), 0);
+            const mb = (totalBytes / (1024 * 1024)).toFixed(1);
+
+            document.getElementById("queueSummary").style.display = "flex";
+            document.getElementById("queueSummary").innerHTML = `
+                <span class="stat"><strong>${totalPhotos}</strong> photos</span>
+                <span class="stat"><strong>${currentGroups.length}</strong> groups</span>
+                <span class="stat"><strong>${mb} MB</strong> original</span>
+            `;
+        }
+
+        // ============================================================
+        // Upload
+        // ============================================================
+        async function startUpload() {
+            if (isUploading) return;
+
+            // 1. Validate all groups have a target observation
+            for (const g of currentGroups) {
+                const manual = g.manualObsId;
+                const selected = document.querySelector(`input[name="obs-${g.index}"]:checked`);
+                if (!manual && !selected) {
+                    alert(`Please select an observation for group ${g.index + 1} or enter one manually.`);
+                    return;
+                }
+            }
+
+            // 2. Resolve observation UUIDs for all groups
+            setStatus("Resolving observation IDs…", "info", true);
+            for (const g of currentGroups) {
+                if (g.manualObsId) {
+                    try {
+                        const resp = await fetch(`/api/observation-id/${g.manualObsId}`);
+                        if (!resp.ok) throw new Error("not found");
+                        const data = await resp.json();
+                        g.manualObsUuid = data.uuid;
+                        g.targetUuid = data.uuid;
+                        g.targetLabel = `#${g.manualObsId}`;
+                    } catch (e) {
+                        setStatus(`Could not find observation #${g.manualObsId}. Check the ID and try again.`, "danger");
+                        return;
+                    }
+                } else {
+                    const sel = document.querySelector(`input[name="obs-${g.index}"]:checked`);
+                    g.targetUuid = sel.value;
+                    g.targetLabel = `#${sel.dataset.obsId}`;
+                }
+            }
+
+            // 3. Upload
+            isUploading = true;
+            document.getElementById("uploadBtn").disabled = true;
+
+            const total = currentGroups.reduce((n, g) => n + g.photos.length, 0);
+            let done = 0;
+            let failed = 0;
+
+            document.getElementById("uploadProgress").classList.add("active");
+
+            for (const g of currentGroups) {
+                for (const photo of g.photos) {
+                    updateProgress(done, total, `Uploading ${photo.file.name} → ${g.targetLabel}`);
+
+                    try {
+                        const blob = await resizeImage(photo.file, RESIZE_MAX_DIM, RESIZE_QUALITY);
+                        const newName = photo.file.name.replace(/\.\w+$/, "") + ".jpg";
+
+                        let success = false;
+                        let attempts = 0;
+                        while (!success && attempts < 3) {
+                            attempts++;
+                            const fd = new FormData();
+                            fd.append("observation_uuid", g.targetUuid);
+                            fd.append("photo", blob, newName);
+
+                            const r = await fetch("/api/upload-photo", { method: "POST", body: fd });
+
+                            if (r.ok) {
+                                success = true;
+                            } else if (r.status === 429) {
+                                const body = await r.json().catch(() => ({}));
+                                const wait = (body.retry_after ?? 5) * 1000;
+                                updateProgress(done, total, `Rate limited — waiting ${Math.round(wait / 1000)}s…`);
+                                await new Promise(res => setTimeout(res, wait));
+                            } else {
+                                // Non-retryable error
+                                break;
+                            }
+                        }
+
+                        if (success) done++;
+                        else failed++;
+                    } catch (err) {
+                        console.error("Upload failed:", photo.file.name, err);
+                        failed++;
+                    }
+
+                    updateProgress(done + failed, total, `Uploaded ${done} / ${total}`);
+                }
+            }
+
+            document.getElementById("uploadProgress").classList.remove("active");
+            isUploading = false;
+            document.getElementById("uploadBtn").disabled = false;
+
+            if (failed === 0) {
+                setStatus(`✅ Successfully uploaded ${done} photo${done !== 1 ? "s" : ""}.`, "success");
+                // Disable upload button; the queue is done
+                document.getElementById("uploadBtn").disabled = true;
+            } else {
+                setStatus(`⚠️ Uploaded ${done} of ${total}. ${failed} failed — see console for details.`, "warn");
+            }
+        }
+
+        function updateProgress(done, total, label) {
+            const pct = total ? Math.round((done / total) * 100) : 0;
+            document.getElementById("progressBar").style.width = pct + "%";
+            document.getElementById("progressBar").setAttribute("aria-valuenow", pct);
+            document.getElementById("progressCount").textContent = `${done} / ${total}`;
+            document.getElementById("progressLabel").textContent = label || "Uploading…";
+        }
+
+        // ============================================================
+        // Client-side image resizing
+        // ============================================================
+        async function resizeImage(file, maxDim, quality) {
+            const bitmap = await createImageBitmap(file);
+            const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+            const w = Math.round(bitmap.width * scale);
+            const h = Math.round(bitmap.height * scale);
+
+            let canvas;
+            if (typeof OffscreenCanvas !== "undefined") {
+                canvas = new OffscreenCanvas(w, h);
+            } else {
+                canvas = document.createElement("canvas");
+                canvas.width = w;
+                canvas.height = h;
+            }
+            const ctx = canvas.getContext("2d");
+            ctx.drawImage(bitmap, 0, 0, w, h);
+
+            if (typeof OffscreenCanvas !== "undefined" && canvas.convertToBlob) {
+                return await canvas.convertToBlob({ type: "image/jpeg", quality });
+            }
+            // Fallback: HTMLCanvasElement.toBlob
+            return await new Promise((resolve, reject) => {
+                canvas.toBlob(b => b ? resolve(b) : reject(new Error("toBlob failed")),
+                    "image/jpeg", quality);
+            });
+        }
+
+        // ============================================================
+        // Reset
+        // ============================================================
+        function resetAll() {
+            if (isUploading) return;
+            if (!confirm("Clear all selected photos and start over?")) return;
+
+            currentGroups = [];
+            fileInput.value = "";
+            document.getElementById("statusBar").classList.remove("active");
+            document.getElementById("queueSummary").style.display = "none";
+            document.getElementById("queueSummary").innerHTML = "";
+            document.getElementById("actionRow").style.display = "none";
+            document.getElementById("suggestionsCard").style.display = "none";
+            document.getElementById("uploadProgress").classList.remove("active");
+            document.getElementById("groupsContainer").innerHTML = "";
+        }
+    </script>
+</body>
+</html>
